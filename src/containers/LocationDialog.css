@@ -1,0 +1,160 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  #locationAddDialog .MuiPaper-root {
+    width: 80%;
+  }
+
+  #locationAddDialog .MuiDialogTitle-root {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+    letter-spacing: 0.25px;
+  }
+
+  img#locationPreview {
+    height: 200px;
+
+    margin: 20px 0;
+
+    object-fit: cover;
+  }
+
+  #locationImageUpload > label {
+    width: 90%;
+  }
+
+  #locationAddResultDialog .MuiPaper-root {
+    width: 350px;
+    height: 200px;
+  }
+
+  #locationAddResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  #locationAddDialog .MuiPaper-root {
+    max-width: 900px !important;
+    width: 900px;
+  }
+
+  #locationAddDialog .MuiDialogTitle-root {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+    letter-spacing: 0.25px;
+  }
+
+  img#locationPreview {
+    height: 250px;
+
+    margin: 20px 0;
+
+    object-fit: cover;
+  }
+
+  div#locationImageUpload > label {
+    width: 30%;
+  }
+
+  #locationAddDialog button[type="submit"] {
+    padding: 12px;
+
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+
+    margin-right: 10px;
+  }
+
+  #locationAddResultDialog .MuiPaper-root {
+    width: 600px;
+    height: 200px;
+  }
+
+  #locationAddResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+
+    letter-spacing: 0.25px;
+
+    margin: 15px 0 20px 0;
+  }
+}
+
+#locationAddDialog {
+  z-index: 2 !important;
+}
+
+#locationAddDialog .MuiDialogTitle-root > span:nth-child(1) {
+  color: hsl(203, 37%, 22%);
+}
+
+#locationAddDialog .MuiDialogTitle-root > span:nth-child(2) {
+  color: hsl(162, 23%, 49%);
+}
+
+img#locationPreview {
+  width: 100%;
+}
+
+span#uploadError::after {
+  content: attr(data-error);
+
+  font-style: italic;
+
+  color: hsl(354, 70%, 54%);
+}
+
+div#locationImageUpload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+label#chooseImage {
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+
+  background: hsl(162, 23%, 49%);
+  color: hsl(0, 0%, 100%);
+
+  padding: 8px 16px;
+
+  text-align: center;
+
+  cursor: pointer;
+}
+
+#locationAddDialog .MuiDialogContent-root input[type="file"] {
+  visibility: hidden;
+}
+
+#locationAddDialog button.btn-text + span {
+  cursor: pointer;
+}
+
+#locationAddActions {
+  display: flex;
+  justify-content: center;
+}
+
+#locationAddActions button {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+
+  margin-right: 10px;
+}
+
+#locationAddResultDialog .circular-progress {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: fit-content;
+}

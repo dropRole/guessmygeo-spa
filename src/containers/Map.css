@@ -1,0 +1,59 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  div#googleMap {
+    height: 250px;
+
+    margin: 30px 0;
+  }
+
+  div#latLngDetails {
+    width: 25%;
+
+    margin: 0 0 20px 0;
+    padding: 6px 12px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  div#googleMap {
+    height: 300px;
+
+    margin: 30px 0;
+  }
+
+  div#latLngDetails {
+    width: 10%;
+
+    margin: 0 0 25px 0;
+    padding: 8px 16px;
+  }
+}
+
+input#mapSearchBox {
+  width: 25%;
+
+  margin: 10px 0 0 10px;
+  padding: 8px 16px;
+
+  font-family: "Roboto";
+
+  border: 1px solid hsl(0, 0%, 50%);
+  border-radius: 2px;
+}
+
+div#latLngDetails {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  z-index: 3;
+
+  background: hsl(0, 0%, 100%);
+  border-radius: 2px;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+
+  font-family: "Roboto";
+}
+
+div#latLngDetails > span {
+  flex-basis: 50%;
+  text-align: center;
+}
