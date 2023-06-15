@@ -1,0 +1,43 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  form#loginForm {
+    padding: 0 32px;
+
+    margin-bottom: 90px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  form#loginForm {
+    width: 400px !important;
+
+    margin: auto;
+  }
+}
+
+form#loginForm .MuiFormControl-root::after {
+  content: attr(data-error);
+
+  font-style: italic;
+
+  color: hsl(354, 70%, 54%);
+}
+
+.MuiInputAdornment-root {
+  cursor: pointer;
+}
+
+form#loginForm button {
+  width: 100% !important;
+
+  margin: 20px 0 0 0;
+}
+
+form#loginForm > p:last-child > span:nth-child(1) {
+  color: hsl(203, 37%, 22%);
+}
+
+form#loginForm > p:last-child > span:nth-child(2) {
+  color: hsl(162, 23%, 49%);
+
+  cursor: pointer;
+}

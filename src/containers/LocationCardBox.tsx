@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ILocation } from "../interfaces/location.interface";
 import { LocationCard } from "../containers/LocationCard";
 import "./CardBox.css";
-import { TextButton } from "./TextButton";
+import { TextButton } from "../components/TextButton";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import { IUser } from "../interfaces/user.interface";
 import Cookies from "universal-cookie";
