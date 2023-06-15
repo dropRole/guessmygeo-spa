@@ -1,0 +1,153 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  #settingsDialog .MuiPaper-root {
+    width: 350px;
+  }
+
+  #settingsDialog .MuiDialogTitle-root {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+    letter-spacing: 0.25px;
+  }
+
+  #settingsDialog div#fullnameControls > div {
+    flex-basis: 45%;
+  }
+
+  #settingsDialog div#settingsActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #settingsDialog div#settingsActions button {
+    margin: 5px 0;
+
+    height: 40px;
+  }
+
+  #settingsDialog div#settingsActions {
+    padding: 20px;
+  }
+
+  #settingsDialog div#settingsActions > button {
+    width: 100%;
+  }
+
+  #settingsDialog div#settingsActions > p {
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  #settingsResultDialog .MuiPaper-root {
+    width: 350px;
+    height: 200px;
+  }
+
+  #settingsResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  #settingsDialog .MuiPaper-root {
+    width: 650px;
+
+    padding: 32px;
+  }
+
+  #settingsDialog .MuiDialogTitle-root {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+
+    letter-spacing: 0.25px;
+  }
+
+  #settingsDialog div#fullnameControls > div {
+    flex-basis: 45%;
+  }
+
+  #settingsDialog div#settingsActions {
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    margin-top: 30px;
+  }
+
+  #settingsDialog div#settingsActions button {
+    flex-basis: 45%;
+
+    padding: 12px;
+  }
+
+  #settingsDialog div#settingsActions > p {
+    justify-content: start;
+    align-items: center;
+    gap: 15px;
+    flex-basis: 100%;
+
+    margin-top: 30px;
+  }
+
+  #settingsDialog div#settingsActions > p > button {
+    flex-basis: 20%;
+  }
+
+  #settingsResultDialog .MuiPaper-root {
+    width: 600px;
+    height: 200px;
+  }
+
+  #settingsResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+
+    letter-spacing: 0.25px;
+
+    margin: 15px 0 20px 0;
+  }
+}
+
+#settingsDialog .MuiFormControl-root::after {
+  content: attr(data-error);
+
+  font-style: italic;
+
+  color: hsl(354, 70%, 54%);
+}
+
+#settingsDialog div#fullnameControls {
+  display: flex;
+  justify-content: space-between;
+}
+
+#settingsDialog div#settingsActions,
+#settingsDialog div#settingsActions > p {
+  display: flex;
+}
+
+#settingsDialog div#settingsActions button {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+}
+
+#settingsDialog .MuiDialogTitle-root > span {
+  color: hsl(162, 23%, 49%);
+}
+
+#settingsDialog div#settingsActions > p > span {
+  cursor: pointer;
+}
+
+#settingsResultDialog .circular-progress {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: fit-content;
+}

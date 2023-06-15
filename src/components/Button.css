@@ -1,0 +1,167 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  div#authButtons > div > button.btn-text {
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  button.btn-hamburger {
+    display: none;
+  }
+}
+
+button {
+  position: relative;
+
+  font-family: "Roboto";
+
+  border: none;
+  border-radius: 4px;
+
+  color: hsl(0, 0%, 100%);
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+button.btn-text {
+  padding: 8px 16px;
+}
+
+button.btn-fill-light {
+  background: hsl(162, 23%, 49%);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+button.btn-outline {
+  border: 1.5px solid hsl(162, 23%, 49%);
+
+  color: hsl(162, 23%, 49%);
+}
+
+button.btn-hamburger,
+button.btn-add {
+  min-width: 32px;
+  min-height: 32px;
+
+  padding: 0;
+}
+
+button.btn-hamburger,
+button.btn-add {
+  background: transparent;
+
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  transform: rotate(0deg);
+
+  -webkit-transition: 0.5s ease-in-out;
+  -moz-transition: 0.5s ease-in-out;
+  -o-transition: 0.5s ease-in-out;
+  transition: 0.5s ease-in-out;
+}
+
+button.btn-hamburger > span,
+button.btn-add > span {
+  display: block;
+  position: absolute;
+  left: 0;
+
+  background: hsl(162, 23%, 49%);
+  border-radius: 9px;
+
+  opacity: 1;
+
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  transform: rotate(0deg);
+
+  -webkit-transition: 0.25s ease-in-out;
+  -moz-transition: 0.25s ease-in-out;
+  -o-transition: 0.25s ease-in-out;
+  transition: 0.25s ease-in-out;
+}
+
+button.btn-hamburger > span {
+  height: 4px;
+  width: 100%;
+}
+
+button.btn-add > span {
+  height: 3px;
+  width: 80%;
+}
+
+button.btn-hamburger > span:nth-child(1),
+button.btn-hamburger > span:nth-child(2),
+button.btn-hamburger > span:nth-child(3) {
+  -webkit-transform-origin: left center;
+  -moz-transform-origin: left center;
+  -o-transform-origin: left center;
+  transform-origin: left center;
+}
+
+button.btn-hamburger > span:nth-child(1) {
+  top: 0px;
+}
+
+button.btn-hamburger > span:nth-child(2) {
+  top: 10px;
+}
+
+button.btn-hamburger > span:nth-child(3) {
+  top: 20px;
+}
+
+button.btn-hamburger-open > span:nth-child(1) {
+  top: -3px;
+  left: 8px;
+
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+button.btn-hamburger-open > span:nth-child(2) {
+  width: 0%;
+  opacity: 0;
+}
+
+button.btn-hamburger-open > span:nth-child(3) {
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  top: 20px;
+  left: 8px;
+}
+
+button.btn-add > span:nth-child(1) {
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+}
+
+button.btn-add > span:nth-child(2) {
+  -webkit-transform: rotate(-90deg) translateY(100%) translateX(10%);
+  -moz-transform: rotate(-90deg) translateY(100%) translateX(10%);
+  -o-transform: rotate(-90deg) translateY(100%) translateX(10%);
+  transform: rotate(-90deg) translateY(100%) translateX(10%);
+  transform-origin: center;
+}
+
+button.btn-text {
+  padding: 8px 16px;
+}
+
+button.btn-fill-light {
+  background: hsl(162, 23%, 49%);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+button.btn-fill-dark {
+  background: hsl(203, 37%, 22%);
+}
