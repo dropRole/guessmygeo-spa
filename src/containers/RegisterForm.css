@@ -1,0 +1,47 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  form#registerForm {
+    padding: 0 32px;
+
+    margin-bottom: 90px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  form#registerForm {
+    width: 400px !important;
+
+    margin: auto;
+  }
+}
+
+form#registerForm .MuiFormControl-root::after {
+  content: attr(data-error);
+
+  font-style: italic;
+
+  color: hsl(354, 70%, 54%);
+}
+
+div#fullnameInputs > .MuiFormControl-root {
+  flex-basis: 45% !important;
+}
+
+.MuiInputAdornment-root {
+  cursor: pointer;
+}
+
+form#registerForm button {
+  width: 100% !important;
+
+  margin: 20px 0 0 0;
+}
+
+form#registerForm > p:last-child > span:nth-child(1) {
+  color: hsl(203, 37%, 22%);
+}
+
+form#registerForm > p:last-child > span:nth-child(2) {
+  color: hsl(162, 23%, 49%);
+
+  cursor: pointer;
+}

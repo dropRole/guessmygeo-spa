@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./CardBox.css";
 import { GuessCard } from "../containers/GuessCard";
-import { SwitchButton } from "./SwitchButton";
-import { TextButton } from "./TextButton";
+import { SwitchButton } from "../components/SwitchButton";
+import { TextButton } from "../components/TextButton";
 import { IGuess } from "../interfaces/guess.interface";
 import LocationsService from "../api/locations.service";
 
@@ -35,7 +35,7 @@ export const GuessCardBox: React.FC = () => {
       // fetch failed
       if (typeof guesses === "string") setFetchError(guesses);
     };
-    
+
     getGuesses();
   }, [limit, filter]);
 

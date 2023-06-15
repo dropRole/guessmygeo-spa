@@ -1,0 +1,122 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  p#loginIntro + p {
+    padding: 0 32px;
+  }
+
+  div#loginSectionDivider > div:nth-child(2) {
+    display: none;
+  }
+
+  #loginResultDialog .MuiPaper-root {
+    width: 350px;
+    height: 200px;
+  }
+
+  #loginResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  div#loginSectionDivider {
+    display: flex;
+  }
+
+  div#loginSectionDivider > div:nth-child(1) {
+    flex-basis: 40%;
+  }
+
+  div#loginSectionDivider > div:nth-child(2) {
+    position: relative;
+
+    flex-basis: 60%;
+  }
+
+  div#loginSectionDivider > div:nth-child(2) > img {
+    width: 100%;
+  }
+
+  div#loginSectionDivider > div:nth-child(2) > aside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+
+  div#loginSectionDivider > div:nth-child(2) > aside > img:nth-child(1),
+  div#loginSectionDivider > div:nth-child(2) > aside > img:nth-child(2) {
+    object-fit: contain;
+  }
+
+  div#loginSectionDivider > div:nth-child(2) > aside > img:nth-child(1) {
+    width: 200px;
+    height: 100px;
+
+    margin-bottom: -20px;
+  }
+
+  div#loginSectionDivider > div:nth-child(2) > aside > img:nth-child(2) {
+    width: 180px;
+    height: 200px;
+  }
+
+  #loginResultDialog .MuiPaper-root {
+    width: 600px;
+    height: 200px;
+  }
+
+  #loginResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+
+    letter-spacing: 0.25px;
+
+    margin: 15px 0 20px 0;
+  }
+}
+
+p#loginIntro,
+p#loginIntro + p {
+  text-align: center;
+}
+
+p#loginIntro {
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 56px;
+
+  color: hsl(203, 37%, 22%);
+
+  margin-top: 90px;
+  margin-bottom: 0;
+}
+
+p#loginIntro + p {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 19px;
+}
+
+div#loginSectionDivider > div:nth-child(1) > img {
+  width: 64px;
+  height: 64px;
+
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#loginResultDialog .circular-progress {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: fit-content;
+}

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Nav } from "../layouts/Nav";
 import { IntroSection } from "../components/IntroSection";
-import { LocationCardBox } from "../components/LocationCardBox";
+import { LocationCardBox } from "../containers/LocationCardBox";
 import { Footer } from "../layouts/Footer";
 import { IUser } from "../interfaces/user.interface";
 import AuthService from "../api/auth.service";
-import { GuessCardBox } from "../components/GuessCardBox";
+import { GuessCardBox } from "../containers/GuessCardBox";
 import "./Home.css";
 import defaultAvatar from "../assets/icons/default-avatar.png";
 import { SettingsDialog } from "../containers/SettingsDialog";

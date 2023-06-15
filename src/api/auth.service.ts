@@ -2,6 +2,32 @@ import { IUser } from "../interfaces/user.interface";
 import BaseHTTPService from "./base-http.service";
 
 export default class AuthService extends BaseHTTPService {
+  async register(
+    username: string,
+    pass: string,
+    name: string,
+    surname: string,
+    email: string
+  ): Promise<string> {
+    return await this.post("auth/register", {
+      username,
+      pass,
+      name,
+      surname,
+      email,
+    });
+  }
+
+  async login(username: string, pass: string): Promise<string> {
+    return await this.post("auth/login", { username, pass });
+  }
+
+  async signPassResetJWT(
+    username: string
+  ): Promise<{ email: string; jwt: string } | string> {
+    return await this.get(`auth/${username}/token/pass-reset`);
+  }
+
   async selectInfo(): Promise<IUser | string> {
     return await this.get<IUser>("auth/me/info");
   }
