@@ -107,3 +107,7 @@ p#notFound > button {
 
   font-style: italic;
 }
+
+.disable-events {
+  pointer-events: none;
+}

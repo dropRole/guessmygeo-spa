@@ -23,11 +23,14 @@ interface IMapProps {
   setCurrentCoords: React.Dispatch<
     React.SetStateAction<{ lat: number; lng: number }>
   >;
+  exposeCoords: { lat: number; lng: number };
+  disabled: boolean;
 }
-
 export const Map: React.FC<IMapProps> = ({
   currentCoords,
   setCurrentCoords,
+  exposeCoords,
+  disabled,
 }) => {
   const [map, setMap] = useState<GoogleMap>();
 
@@ -43,12 +46,12 @@ export const Map: React.FC<IMapProps> = ({
   useEffect(() => {
     if (googleMap.current) {
       const map: GoogleMap = new google.maps.Map(googleMap.current, {
-        center: currentCoords,
+        center: exposeCoords,
         zoom: 8,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: false,
-        mapId: `MAP_ID_${Math.round(currentCoords.lat)}_${Math.round(
-          currentCoords.lng
+        mapId: `MAP_ID_${Math.round(exposeCoords.lat)}_${Math.round(
+          exposeCoords.lng
         )}`,
       });
 
@@ -147,7 +150,7 @@ export const Map: React.FC<IMapProps> = ({
 
       setMap(map);
     }
-  }, []);
+  }, [exposeCoords]);
 
   return (
     <>
@@ -159,6 +162,7 @@ export const Map: React.FC<IMapProps> = ({
           // enter pressed
           if (e.key === "Enter") e.preventDefault();
         }}
+        disabled={disabled}
       />
       <div ref={latLngDetails} id="latLngDetails">
         <span>Lat</span>
@@ -166,7 +170,7 @@ export const Map: React.FC<IMapProps> = ({
         <span>{currentCoords.lat.toFixed(2)}</span>
         <span>{currentCoords.lng.toFixed(2)}</span>
       </div>
-      <div id="googleMap" ref={googleMap}></div>
+      <div id="googleMap" className={disabled ? "disable-events" : ""} ref={googleMap}></div>
     </>
   );
 };

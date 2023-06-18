@@ -14,11 +14,27 @@ import locationDelete from "../assets/icons/delete.png";
 interface ILocationCardProps {
   location: ILocation;
   creator?: IUser;
+  setLocationToEdit?: React.Dispatch<
+    React.SetStateAction<ILocation | undefined>
+  >;
+  setLocationDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setLocationDialogType?: React.Dispatch<React.SetStateAction<"add" | "edit">>;
+  locationEdited?: ILocation | undefined;
+  setLocationDeletionDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setLocationToDelete?: React.Dispatch<
+    React.SetStateAction<ILocation | undefined>
+  >;
 }
 
 export const LocationCard: React.FC<ILocationCardProps> = ({
   location,
   creator,
+  setLocationToEdit,
+  setLocationDialogOpen,
+  setLocationDialogType,
+  locationEdited,
+  setLocationDeletionDialogOpen,
+  setLocationToDelete,
 }) => {
   const [locationImage, setLocationImage] = useState<Blob>(new Blob());
 
@@ -34,8 +50,15 @@ export const LocationCard: React.FC<ILocationCardProps> = ({
       if (result instanceof Blob) setLocationImage(result);
     };
 
+    // if edited
+    if (locationEdited && locationEdited.id === location.id) {
+      getImage(locationEdited.image);
+
+      return;
+    }
+
     getImage(location.image);
-  }, []);
+  }, [locationEdited]);
 
   const pathname: string = useLocation().pathname;
 
@@ -61,10 +84,25 @@ export const LocationCard: React.FC<ILocationCardProps> = ({
           </Tooltip>
         ) : (
           <div className="location-settings">
-            <aside>
+            <aside
+              onClick={() => {
+                setLocationToEdit && setLocationToEdit({ ...location });
+
+                setLocationDialogOpen && setLocationDialogOpen(true);
+
+                setLocationDialogType && setLocationDialogType("edit");
+              }}
+            >
               <img src={locationEdit} alt="edit location" />
             </aside>
-            <aside>
+            <aside
+              onClick={async () => {
+                setLocationDeletionDialogOpen &&
+                  setLocationDeletionDialogOpen(true);
+
+                setLocationToDelete && setLocationToDelete(location);
+              }}
+            >
               <img src={locationDelete} alt="delete location" />
             </aside>
           </div>

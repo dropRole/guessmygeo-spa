@@ -16,11 +16,16 @@ import { Map } from "./Map";
 import { TextButton } from "../components/TextButton";
 import LocationsService from "../api/locations.service";
 import { recordInputAction } from "../helpers/actions-utility";
+import { ILocation } from "../interfaces/location.interface";
 
 interface ILocationDialogProps {
   type: "add" | "edit";
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  locationToEdit?: ILocation;
+  setLocationEdited?: React.Dispatch<
+    React.SetStateAction<ILocation | undefined>
+  >;
 }
 
 interface ILocationFormFields {
@@ -58,6 +63,8 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
   type,
   open,
   setOpen,
+  locationToEdit,
+  setLocationEdited,
 }) => {
   const [caption, setCaption] = useState<string>("");
 
@@ -65,13 +72,26 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
     Blob | string
   >(imagePlaceholder);
 
+  const getCurrentGeo: () => { lat: number; lng: number } = () => {
+    const currentCoords: { lat: number; lng: number } = { lat: 0, lng: 0 };
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      currentCoords.lat = position.coords.latitude;
+      currentCoords.lng = position.coords.longitude;
+    });
+
+    return currentCoords;
+  };
+
   const [mapCurrentCoords, setMapCurrentCoords] = useState<{
     lat: number;
     lng: number;
-  }>({ lat: 0, lng: 0 });
+  }>(getCurrentGeo());
 
-  const [mapExposeCoords, setMapExposeCoords] =
-    useState<typeof mapCurrentCoords>(mapCurrentCoords);
+  const [mapExposeCoords, setMapExposeCoords] = useState<{
+    lat: number;
+    lng: number;
+  }>(getCurrentGeo());
 
   const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
 
@@ -82,6 +102,30 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
   const locationsService: LocationsService = new LocationsService();
 
   useEffect(() => {
+    // editing the passed location
+    if (type === "edit" && locationToEdit) {
+      setCaption(locationToEdit.caption);
+
+      const streamImage: () => void = async () => {
+        const image: Blob = await locationsService.streamImage(
+          locationToEdit.image
+        );
+
+        setLocationImagePreview(image);
+      };
+      streamImage();
+
+      setMapCurrentCoords({
+        lat: parseFloat(locationToEdit.lat.toString()),
+        lng: parseFloat(locationToEdit.lon.toString()),
+      });
+
+      return setMapExposeCoords({
+        lat: parseFloat(locationToEdit.lat.toString()),
+        lng: parseFloat(locationToEdit.lon.toString()),
+      });
+    }
+
     setCaption("");
 
     setLocationImagePreview(imagePlaceholder);
@@ -97,7 +141,7 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
         lng: position.coords.longitude,
       });
     });
-  }, [type]);
+  }, [type, locationToEdit]);
 
   const {
     register,
@@ -114,21 +158,53 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
     typeof data.caption === "string" &&
       formData.append("caption", data.caption);
     formData.append("image", data.location[0]);
-    formData.append("lat", mapCurrentCoords.lat.toString());
-    formData.append("lon", mapCurrentCoords.lng.toString());
 
-    const result = await locationsService.createLocation(formData);
+    // creating location
+    if (type === "add") {
+      formData.append("lat", mapCurrentCoords.lat.toString());
+      formData.append("lon", mapCurrentCoords.lng.toString());
 
-    // failed
-    if (result !== "") {
-      setAddResult("Location addition failed.");
+      const result = await locationsService.createLocation(formData);
 
-      return setAddDetails(result);
+      // failed
+      if (result !== "") {
+        setAddResult("Location addition failed.");
+
+        return setAddDetails(result);
+      }
+
+      setAddResult("Location added.");
+
+      return setAddDetails("Location image was uploaded.");
     }
 
-    setAddResult("Location added.");
+    // to edit
+    if (type === "edit" && locationToEdit) {
+      formData.append("id", locationToEdit.id);
 
-    setAddDetails("Location image was uploaded.");
+      const result = await locationsService.editLocation(formData);
+
+      // failed
+      if (result !== "") {
+        setAddResult("Location addition failed.");
+
+        return setAddDetails(result);
+      }
+
+      const editedImage: string = (
+        await locationsService.selectLocation(locationToEdit.id)
+      ).image;
+
+      setLocationEdited &&
+        setLocationEdited({
+          ...(locationToEdit as ILocation),
+          image: editedImage,
+        });
+
+      setAddResult("Location edited.");
+
+      setAddDetails("Location image was re-uploaded.");
+    }
   };
   return (
     <Dialog id="locationAddDialog" open={open}>
@@ -175,6 +251,8 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
           <Map
             currentCoords={mapCurrentCoords}
             setCurrentCoords={setMapCurrentCoords}
+            exposeCoords={mapExposeCoords}
+            disabled={type === "edit" ? true : false}
           />
           <input
             id="locationImage"

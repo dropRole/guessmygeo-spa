@@ -3,19 +3,44 @@ import { ILocation } from "../interfaces/location.interface";
 import { LocationCard } from "../containers/LocationCard";
 import "./CardBox.css";
 import { TextButton } from "../components/TextButton";
-import { NavigateFunction, useNavigate } from "react-router-dom";
+import {
+  Location,
+  NavigateFunction,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { IUser } from "../interfaces/user.interface";
 import Cookies from "universal-cookie";
 import LocationsService from "../api/locations.service";
 
 interface ILocationCardBoxProps {
   user?: IUser;
+  setLocationToEdit?: React.Dispatch<
+    React.SetStateAction<ILocation | undefined>
+  >;
+  setLocationDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setLocationDialogType?: React.Dispatch<React.SetStateAction<"add" | "edit">>;
+  locationEdited?: ILocation | undefined;
+  setLocationDeletionDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setLocationToDelete?: React.Dispatch<
+    React.SetStateAction<ILocation | undefined>
+  >;
+  deletedLocation?: ILocation | undefined;
 }
 
-export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({ user }) => {
+export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({
+  user,
+  setLocationToEdit,
+  setLocationDialogOpen,
+  setLocationDialogType,
+  locationEdited,
+  setLocationDeletionDialogOpen,
+  setLocationToDelete,
+  deletedLocation,
+}) => {
   const [locations, setLocations] = useState<ILocation[]>([]);
 
-  const [limit, setLimit] = useState(3);
+  const [limit, setLimit] = useState(6);
 
   const [loadMore, setLoadMore] = useState<boolean>(true);
 
@@ -23,10 +48,15 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({ user }) => {
 
   const locationsService: LocationsService = new LocationsService();
 
+  const location: Location = useLocation();
+
   useEffect(() => {
     const getLocations: () => void = async () => {
       const locations: ILocation[] | string =
-        await locationsService.selectLocations(limit);
+        await locationsService.selectLocations(
+          limit,
+          user && location.pathname === "/profile" ? user.username : undefined
+        );
 
       // fetch succeeded
       if (locations instanceof Array) {
@@ -41,7 +71,7 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({ user }) => {
     };
 
     getLocations();
-  }, [limit]);
+  }, [user, limit, locationEdited, deletedLocation]);
 
   const navigate: NavigateFunction = useNavigate();
 
@@ -50,7 +80,17 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({ user }) => {
   return fetchError === "" ? (
     <div className="card-box flex-wrap">
       {locations.map((location) => (
-        <LocationCard key={location.id} location={location} creator={user} />
+        <LocationCard
+          key={location.id}
+          location={location}
+          creator={user}
+          setLocationToEdit={setLocationToEdit}
+          setLocationDialogOpen={setLocationDialogOpen}
+          setLocationDialogType={setLocationDialogType}
+          locationEdited={locationEdited}
+          setLocationDeletionDialogOpen={setLocationDeletionDialogOpen}
+          setLocationToDelete={setLocationToDelete}
+        />
       ))}
       {cookies.get("guessmygeo_token") ? (
         loadMore && (
