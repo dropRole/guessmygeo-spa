@@ -13,11 +13,6 @@
     width: 36px;
     height: 36px;
   }
-
-  div.location-settings > aside > img {
-    width: 24px;
-    height: 24px;
-  }
 }
 
 @media screen and (min-width: 992px) {
@@ -152,4 +147,9 @@ div.location-settings > aside:nth-child(1) {
 
 div.location-settings > aside:nth-child(2) {
   border-bottom-left-radius: 4px;
+}
+
+div.location-settings > aside > img {
+  width: 24px;
+  height: 24px;
 }

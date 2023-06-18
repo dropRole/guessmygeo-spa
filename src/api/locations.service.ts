@@ -18,6 +18,10 @@ export default class LocationsService extends BaseHTTPService {
     );
   }
 
+  async selectLocation(id: string): Promise<ILocation> {
+    return await this.get<ILocation>(`locations/${id}`);
+  }
+
   async streamImage(filename: string): Promise<Blob> {
     return await this.get<Blob>(`locations/image/${filename}`, {
       responseType: "blob",
@@ -35,5 +39,13 @@ export default class LocationsService extends BaseHTTPService {
         id ? `&id=${id}` : ""
       }&results=${results}`
     );
+  }
+
+  async editLocation(formData: FormData): Promise<string> {
+    return await this.patch(`locations/${formData.get("id")}`, formData);
+  }
+
+  async deleteLocation(id: string): Promise<string> {
+    return await this.delete(`locations/${id}`);
   }
 }
