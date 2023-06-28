@@ -12,6 +12,7 @@ import { SettingsDialog } from "../containers/SettingsDialog";
 import { LocationDialog } from "../containers/LocationDialog";
 import { recordScrollAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
+import { IGuesser } from "../containers/GuessingLeaderboard";
 
 export const Home: React.FC = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
@@ -74,7 +75,7 @@ export const Home: React.FC = () => {
             Your personal best guesses appear here. Go on and try to beat your
             personal records or set a new one!
           </p>
-          <GuessCardBox />
+          <GuessCardBox guesser={user as IGuesser} />
           <p id="newLocations">New Locations</p>
           <p>
             New uploads from users. Try to guess all the locations by pressing
@@ -92,7 +93,7 @@ export const Home: React.FC = () => {
             setOpen={setSettingsDialogOpen}
           />
           <LocationDialog
-            type="add"
+            type={locationDialogType}
             open={locationDialogOpen}
             setOpen={setLocationDialogOpen}
           />

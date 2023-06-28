@@ -1,0 +1,95 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  form#guessingForm > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+    letter-spacing: 0.25px;
+
+    text-align: center;
+  }
+
+  form#guessingForm > img {
+    height: 180px;
+  }
+
+  form#guessingForm > button {
+    width: 100%;
+
+    margin-top: 20px;
+  }
+
+  p#locationCreator > img {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  form#guessingForm > p:nth-child(1) {
+    font-size: 34px;
+    letter-spacing: 0.25px;
+
+    margin: 0 0 15px 0;
+
+    text-align: left;
+  }
+
+  form#guessingForm > img {
+    height: 330px;
+  }
+
+  form#guessingForm > button {
+    position: relative;
+    left: 100%;
+    transform: translateX(-100%);
+
+    width: 25%;
+
+    margin-top: 20px;
+  }
+
+  p#locationCreator {
+    margin-top: 90px;
+  }
+
+  p#locationCreator > img {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+form#guessingForm {
+  margin: 60px 0;
+
+  padding: 0px 32px;
+}
+
+form#guessingForm > p:nth-child(1) > span:nth-child(1) {
+  color: hsl(203, 37%, 22%);
+}
+
+form#guessingForm > p:nth-child(1) > span:nth-child(2) {
+  color: hsl(162, 23%, 49%);
+}
+
+form#guessingForm > img {
+  width: 100%;
+  object-fit: cover;
+
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+p#locationCreator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+p#locationCreator > img {
+  object-fit: cover;
+
+  cursor: pointer;
+}

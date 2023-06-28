@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Card.css";
 import { IGuess } from "../interfaces/guess.interface";
 import LocationsService from "../api/locations.service";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 
 interface IGuessCardProps {
   guess: IGuess;
@@ -12,13 +13,15 @@ export const GuessCard: React.FC<IGuessCardProps> = ({ guess }) => {
 
   const locationsService: LocationsService = new LocationsService();
 
+  const navigate: NavigateFunction = useNavigate();
+
   useEffect(() => {
     const getImage: () => void = async () => {
       const result: Blob = await locationsService.streamImage(
         guess.location.image as string
       );
 
-      // streamed image
+      // streamed location image
       if (result instanceof Blob) setLocationImage(result);
     };
 
@@ -26,7 +29,14 @@ export const GuessCard: React.FC<IGuessCardProps> = ({ guess }) => {
   }, []);
 
   return (
-    <div className="card">
+    <div
+      className="card"
+      onClick={() =>
+        navigate(
+          `/location-guess?idLocations=${guess.location.id}`
+        )
+      }
+    >
       <img
         loading="lazy"
         className="location-image"

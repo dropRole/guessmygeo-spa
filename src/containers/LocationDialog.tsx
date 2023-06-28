@@ -66,45 +66,34 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
   locationToEdit,
   setLocationEdited,
 }) => {
-  const [caption, setCaption] = useState<string>("");
+  const [locationCaption, setLocationCaption] = useState<string>("");
 
   const [locationImagePreview, setLocationImagePreview] = useState<
     Blob | string
   >(imagePlaceholder);
 
-  const getCurrentGeo: () => { lat: number; lng: number } = () => {
-    const currentCoords: { lat: number; lng: number } = { lat: 0, lng: 0 };
-
-    navigator.geolocation.getCurrentPosition((position) => {
-      currentCoords.lat = position.coords.latitude;
-      currentCoords.lng = position.coords.longitude;
-    });
-
-    return currentCoords;
-  };
-
   const [mapCurrentCoords, setMapCurrentCoords] = useState<{
     lat: number;
     lng: number;
-  }>(getCurrentGeo());
+  }>({ lat: 0, lng: 0 });
 
   const [mapExposeCoords, setMapExposeCoords] = useState<{
     lat: number;
     lng: number;
-  }>(getCurrentGeo());
+  }>({ lat: 0, lng: 0 });
 
   const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
 
-  const [addResult, setAddResult] = useState<string>("");
+  const [operationResult, setOperationResult] = useState<string>("");
 
-  const [addDetails, setAddDetails] = useState<string>("");
+  const [operationDetails, setOperationDetails] = useState<string>("");
 
   const locationsService: LocationsService = new LocationsService();
 
   useEffect(() => {
     // editing the passed location
     if (type === "edit" && locationToEdit) {
-      setCaption(locationToEdit.caption);
+      setLocationCaption(locationToEdit.caption);
 
       const streamImage: () => void = async () => {
         const image: Blob = await locationsService.streamImage(
@@ -126,7 +115,7 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
       });
     }
 
-    setCaption("");
+    setLocationCaption("");
 
     setLocationImagePreview(imagePlaceholder);
 
@@ -168,14 +157,14 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
 
       // failed
       if (result !== "") {
-        setAddResult("Location addition failed.");
+        setOperationResult("Location addition failed.");
 
-        return setAddDetails(result);
+        return setOperationDetails(result);
       }
 
-      setAddResult("Location added.");
+      setOperationResult("Location added.");
 
-      return setAddDetails("Location image was uploaded.");
+      return setOperationDetails("Location image was uploaded.");
     }
 
     // to edit
@@ -186,9 +175,9 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
 
       // failed
       if (result !== "") {
-        setAddResult("Location addition failed.");
+        setOperationResult("Location addition failed.");
 
-        return setAddDetails(result);
+        return setOperationDetails(result);
       }
 
       const editedImage: string = (
@@ -201,9 +190,9 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
           image: editedImage,
         });
 
-      setAddResult("Location edited.");
+      setOperationResult("Location edited.");
 
-      setAddDetails("Location image was re-uploaded.");
+      setOperationDetails("Location image was re-uploaded.");
     }
   };
   return (
@@ -222,9 +211,9 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
             variant="standard"
             color="success"
             {...register("caption", {
-              value: caption,
+              value: locationCaption,
             })}
-            placeholder={caption}
+            placeholder={locationCaption}
             data-error={errors.caption ? errors.caption.message : ""}
             onBlur={recordInputAction}
           />
@@ -278,18 +267,18 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
       </DialogContent>
       <Dialog id="locationAddResultDialog" open={resultDialogOpen}>
         <DialogContent>
-          {addResult && addDetails ? (
+          {operationResult && operationDetails ? (
             <>
-              <p>{addResult}</p>
-              <p>{addDetails}</p>
+              <p>{operationResult}</p>
+              <p>{operationDetails}</p>
               <TextButton
                 className="btn-text btn-fill-light"
                 type="button"
                 text="Close"
                 clickAction={() => {
-                  setAddResult("");
+                  setOperationResult("");
 
-                  setAddDetails("");
+                  setOperationDetails("");
 
                   setResultDialogOpen(false);
                 }}
