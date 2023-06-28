@@ -7,6 +7,7 @@ import { Login } from "./pages/Login";
 import { PageNotFound } from "./pages/PageNotFound";
 import { PasswordReset } from "./pages/PasswordReset";
 import { Profile } from "./pages/Profile";
+import { LocationGuess } from "./pages/LocationGuess";
 
 function App() {
   const cookies: Cookies = new Cookies();
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/location-guess" element={<LocationGuess />} />
           <Route
             path="/register"
             element={

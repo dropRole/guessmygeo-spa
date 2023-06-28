@@ -10,5 +10,5 @@ export interface ILocation {
   createadAt: Date;
   editedAt: Date;
   user: IUser;
-  guesses: IGuess;
+  guesses: IGuess[];
 }

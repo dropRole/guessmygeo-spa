@@ -10,17 +10,17 @@ import { LocationCardBox } from "../containers/LocationCardBox";
 import { ILocation } from "../interfaces/location.interface";
 import { LocationDialog } from "../containers/LocationDialog";
 import { SettingsDialog } from "../containers/SettingsDialog";
-import {
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-} from "@mui/material";
-import { TextButton } from "../components/TextButton";
 import LocationsService from "../api/locations.service";
+import { useSearchParams } from "react-router-dom";
+import { LocationDeletionDialog } from "../components/LocationDeletionDialog";
+import { ResultDialog } from "../components/ResultDialog";
 
 export const Profile = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
+
+  const [spectatedUser, setSpectatedUser] = useState<IUser | undefined>(
+    undefined
+  );
 
   const [locationDialogOpen, setLocationDialogOpen] = useState<boolean>(false);
 
@@ -49,36 +49,79 @@ export const Profile = () => {
     undefined
   );
 
-  const [locationDeletionResult, setLocationDeletionResult] =
-    useState<string>();
-
   const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
+
+  const [locationDeletionResult, setLocationDeletionResult] =
+    useState<string>("");
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const authService: AuthService = new AuthService();
 
-  const locationsService: LocationsService = new LocationsService();
-
   useEffect(() => {
+    const streamAvatar: (path: string) => Promise<Blob> = async (
+      path: string
+    ) => {
+      const avatar: Blob = await authService.streamAvatar(path);
+
+      return avatar;
+    };
+
     const getUserInfo: () => void = async () => {
       const info: IUser | string = await authService.selectInfo();
 
       // succeeded
       if (typeof info !== "string") {
         // uploaded user avatar
-        if ((info as IUser).avatar !== null) {
-          const avatar: Blob = await authService.streamAvatar(
-            info.avatar as string
-          );
-
-          return setUser({ ...(info as IUser), avatar });
-        }
+        if ((info as IUser).avatar !== null)
+          return setUser({
+            ...(info as IUser),
+            avatar: await streamAvatar(info.avatar as string),
+          });
 
         setUser({ ...(info as IUser), avatar: defaultAvatar });
       }
     };
 
+    const setSpectatedUserInfo: (spectatedUserInfo: IUser) => void = async (
+      spectatedUserInfo: IUser
+    ) => {
+      // avatar uploaded
+      if (spectatedUserInfo.avatar !== "null") {
+        const avatar: Blob = await authService.streamAvatar(
+          searchParams.get("avatar") as string
+        );
+
+        return setSpectatedUser({
+          ...spectatedUserInfo,
+          avatar,
+        });
+      }
+
+      setSpectatedUser({ ...spectatedUserInfo, avatar: defaultAvatar });
+    };
+
+    // spectating user profile
+    if (
+      searchParams.get("username") &&
+      searchParams.get("name") &&
+      searchParams.get("surname") &&
+      searchParams.get("email") &&
+      searchParams.get("avatar")
+    )
+      setSpectatedUserInfo({
+        username: searchParams.get("username") as string,
+        name: searchParams.get("name") as string,
+        surname: searchParams.get("surname") as string,
+        email: searchParams.get("email") as string,
+        avatar: searchParams.get("avatar") as string,
+      });
+    else setSpectatedUser(undefined);
+
     getUserInfo();
-  }, []);
+  }, [searchParams]);
+
+  const locationsService: LocationsService = new LocationsService();
 
   return (
     <>
@@ -91,19 +134,31 @@ export const Profile = () => {
       <div id="profileInfo">
         <img
           src={
-            typeof user.avatar === "string"
+            spectatedUser
+              ? typeof spectatedUser.avatar === "string"
+                ? defaultAvatar
+                : URL.createObjectURL(spectatedUser.avatar as Blob)
+              : typeof user.avatar === "string"
               ? user.avatar
               : URL.createObjectURL(user.avatar as Blob)
           }
           alt="user avatar"
         />
-        <div>{`${user.name ?? ""} ${user.surname ?? ""}`}</div>
+        <div>{`${
+          spectatedUser ? spectatedUser.name : user.name ? user.name : ""
+        } ${
+          spectatedUser
+            ? spectatedUser.surname
+            : user.surname
+            ? user.surname
+            : ""
+        }`}</div>
       </div>
       <p id="personalGuesses">Personal best guesses</p>
-      <GuessCardBox />
+      <GuessCardBox guesser={spectatedUser ? spectatedUser : user} />
       <p id="personalLocations">My locations</p>
       <LocationCardBox
-        user={user}
+        user={spectatedUser ? spectatedUser : user}
         setLocationToEdit={setLocationToEdit}
         setLocationDialogOpen={setLocationDialogOpen}
         setLocationDialogType={setLocationDialogType}
@@ -125,66 +180,20 @@ export const Profile = () => {
         user={user}
         setUser={setUser}
       />
-      <Dialog id="locationDeletionDialog" open={locationDeletionDialogOpen}>
-        <DialogContent>
-          <p>Are you sure?</p>
-          <p>This location will be deleted. There is no undo of this action.</p>
-        </DialogContent>
-        <DialogActions>
-          <TextButton
-            type="button"
-            className="btn-text btn-fill-light"
-            text="DELETE"
-            clickAction={async () => {
-              setLocationDeletionDialogOpen(false);
-
-              setResultDialogOpen(true);
-
-              // location for deletion determined
-              if (locationToDelete) {
-                const result: string = await locationsService.deleteLocation(
-                  locationToDelete.id
-                );
-
-                // deletion succeeded
-                if (result === "") {
-                  setDeletedLocation(locationToDelete);
-
-                  return setLocationDeletionResult("Location is deleted.");
-                }
-
-                setLocationDeletionResult(result);
-              }
-            }}
-          />
-          <span onClick={() => setLocationDeletionDialogOpen(false)}>
-            Cancel
-          </span>
-        </DialogActions>
-      </Dialog>
-      <Dialog id="resultDialog" open={resultDialogOpen}>
-        <DialogContent>
-          {locationDeletionResult ? (
-            <>
-              <p>{locationDeletionResult}</p>
-              <TextButton
-                type="button"
-                className="btn-text btn-fill-light"
-                text="CLOSE"
-                clickAction={() => {
-                  setResultDialogOpen(false);
-
-                  setLocationDeletionResult("");
-                }}
-              />
-            </>
-          ) : (
-            <div className="circular-progress">
-              <CircularProgress color="success" />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <LocationDeletionDialog
+        open={locationDeletionDialogOpen}
+        setOpen={setLocationDeletionDialogOpen}
+        locationToDelete={locationToDelete}
+        setResultDialogOpen={setResultDialogOpen}
+        setLocationDeletionResult={setLocationDeletionResult}
+        setDeletedLocation={setDeletedLocation}
+      />
+      <ResultDialog
+        open={resultDialogOpen}
+        setOpen={setResultDialogOpen}
+        result={locationDeletionResult}
+        setResult={setLocationDeletionResult}
+      />
       <Footer />
     </>
   );

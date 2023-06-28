@@ -2,13 +2,13 @@ import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import "./Map.css";
 
-const loader: Loader = new Loader({
-  apiKey: process.env.REACT_APP_GOOGLE_MAPS_API as string,
-  version: "weekly",
-});
-
 const loadGoogleMapsAPI: () => void = async () => {
+  const loader: Loader = new Loader({
+    apiKey: process.env.REACT_APP_GOOGLE_MAPS_API as string,
+    version: "weekly",
+  });
   await loader.load();
+
   (await google.maps.importLibrary("places")) as google.maps.PlacesLibrary;
 };
 
@@ -17,6 +17,7 @@ loadGoogleMapsAPI();
 type GoogleMap = google.maps.Map;
 type MapMarker = google.maps.Marker;
 type MapSearchBox = google.maps.places.SearchBox;
+type MapPolyline = google.maps.Polyline;
 
 interface IMapProps {
   currentCoords: { lat: number; lng: number };
@@ -24,30 +25,32 @@ interface IMapProps {
     React.SetStateAction<{ lat: number; lng: number }>
   >;
   exposeCoords: { lat: number; lng: number };
+  guessCoords?: { lat: number; lng: number };
   disabled: boolean;
 }
 export const Map: React.FC<IMapProps> = ({
   currentCoords,
   setCurrentCoords,
   exposeCoords,
+  guessCoords,
   disabled,
 }) => {
-  const [map, setMap] = useState<GoogleMap>();
+  const [map, setGoogleMap] = useState<GoogleMap>();
 
-  const googleMap: React.RefObject<HTMLDivElement> =
-    useRef<HTMLDivElement>(null);
+  const mapRef: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
-  const googleSearchBox: React.RefObject<HTMLInputElement> =
+  const searchBoxRef: React.RefObject<HTMLInputElement> =
     useRef<HTMLInputElement>(null);
 
-  const latLngDetails: React.RefObject<HTMLDivElement> =
+  const latLngRef: React.RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (googleMap.current) {
-      const map: GoogleMap = new google.maps.Map(googleMap.current, {
+    if (mapRef.current) {
+      const map: GoogleMap = new google.maps.Map(mapRef.current, {
         center: exposeCoords,
-        zoom: 8,
+        zoom:
+          guessCoords && guessCoords.lat !== 0 && guessCoords.lng !== 0 ? 5 : 8,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: false,
         mapId: `MAP_ID_${Math.round(exposeCoords.lat)}_${Math.round(
@@ -56,87 +59,14 @@ export const Map: React.FC<IMapProps> = ({
       });
 
       const searchBox: MapSearchBox = new google.maps.places.SearchBox(
-        googleSearchBox.current as HTMLInputElement
-      );
-
-      map.addListener("bounds_changed", () => {
-        searchBox.setBounds(map.getBounds() as google.maps.LatLngBounds);
-      });
-
-      let markers: MapMarker[] = [];
-
-      // Listen for the event fired when the user selects a prediction and retrieve
-      // more details for that place.
-      searchBox.addListener("places_changed", () => {
-        const places: google.maps.places.PlaceResult[] | undefined =
-          searchBox.getPlaces();
-
-        if (places && places.length === 0) {
-          return;
-        }
-
-        // Clear out the old markers.
-        markers.forEach((marker) => {
-          marker.setMap(null);
-        });
-        markers = [];
-
-        // For each place, get the icon, name and location.
-        const bounds: google.maps.LatLngBounds = new google.maps.LatLngBounds();
-
-        places?.forEach((place) => {
-          if (!place.geometry || !place.geometry.location) {
-            console.log("Returned place contains no geometry");
-            return;
-          }
-
-          const marker: MapMarker = new google.maps.Marker({
-            map,
-            title: place.name,
-            position: place.geometry.location,
-            draggable: true,
-            animation: google.maps.Animation.DROP,
-            crossOnDrag: false,
-          });
-
-          google.maps.event.addListener(marker, "dragend", (e: any) =>
-            setCurrentCoords({
-              lat: e.latLng.lat(),
-              lng: e.latLng.lng(),
-            })
-          );
-
-          // Create a marker for each place.
-          markers.push(marker);
-
-          setCurrentCoords({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-          });
-
-          if (place.geometry.viewport) {
-            // Only geocodes have viewport.
-            bounds.union(place.geometry.viewport);
-          } else {
-            bounds.extend(place.geometry.location);
-          }
-        });
-        map.fitBounds(bounds);
-      });
-
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(
-        googleSearchBox.current as HTMLElement
-      );
-
-      map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
-        latLngDetails.current as HTMLElement
+        searchBoxRef.current as HTMLInputElement
       );
 
       const marker: MapMarker = new google.maps.Marker({
         map,
         position: currentCoords,
         title: "Current coords",
-        draggable: true,
+        draggable: !disabled,
         animation: google.maps.Animation.DROP,
         crossOnDrag: false,
       });
@@ -148,7 +78,81 @@ export const Map: React.FC<IMapProps> = ({
         })
       );
 
-      setMap(map);
+      map.addListener("bounds_changed", () => {
+        searchBox.setBounds(map.getBounds() as google.maps.LatLngBounds);
+      });
+
+      // Listen for the event fired when the user selects a prediction and retrieve
+      // more details for that place.
+      searchBox.addListener("places_changed", () => {
+        const place: google.maps.places.PlaceResult | undefined =
+          searchBox.getPlaces()
+            ? (searchBox.getPlaces() as google.maps.places.PlaceResult[])[0]
+            : undefined;
+
+        if (!place) return;
+
+        // Clear out the old marker.
+        marker.setMap(null);
+
+        // Get the icon and location of the place
+        const bounds: google.maps.LatLngBounds = new google.maps.LatLngBounds();
+
+        if (!place.geometry || !place.geometry.location) {
+          console.log("Returned place contains no geometry");
+          return;
+        }
+
+        marker.setMap(map);
+        marker.setTitle(place.name);
+        marker.setPosition(place.geometry.location);
+        marker.setDraggable(!disabled);
+        marker.setAnimation(google.maps.Animation.DROP);
+
+        setCurrentCoords({
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        });
+
+        if (place.geometry.viewport)
+          // Only geocodes have viewport.
+          bounds.union(place.geometry.viewport);
+        else bounds.extend(place.geometry.location);
+
+        map.fitBounds(bounds);
+      });
+
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(
+        searchBoxRef.current as HTMLElement
+      );
+
+      map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(
+        latLngRef.current as HTMLElement
+      );
+      // location guessed
+      if (guessCoords && guessCoords.lat !== 0 && guessCoords.lng !== 0) {
+        const locationMarker: MapMarker = new google.maps.Marker({
+          map,
+          position: exposeCoords,
+          title: "Guessed coords",
+          draggable: false,
+          animation: google.maps.Animation.DROP,
+          crossOnDrag: false,
+        });
+
+        const line: MapPolyline = new google.maps.Polyline({
+          path: [
+            new google.maps.LatLng(exposeCoords.lat, exposeCoords.lng),
+            new google.maps.LatLng(guessCoords.lat, guessCoords.lng),
+          ],
+          strokeColor: "#00000",
+          strokeOpacity: 1.0,
+          strokeWeight: 3,
+          map: map,
+        });
+      }
+
+      setGoogleMap(map);
     }
   }, [exposeCoords]);
 
@@ -156,7 +160,7 @@ export const Map: React.FC<IMapProps> = ({
     <>
       <input
         id="mapSearchBox"
-        ref={googleSearchBox}
+        ref={searchBoxRef}
         type="text"
         onKeyDown={(e: KeyboardEvent) => {
           // enter pressed
@@ -164,13 +168,17 @@ export const Map: React.FC<IMapProps> = ({
         }}
         disabled={disabled}
       />
-      <div ref={latLngDetails} id="latLngDetails">
+      <div ref={latLngRef} id="latLngDetails">
         <span>Lat</span>
         <span>Lng</span>
         <span>{currentCoords.lat.toFixed(2)}</span>
         <span>{currentCoords.lng.toFixed(2)}</span>
       </div>
-      <div id="googleMap" className={disabled ? "disable-events" : ""} ref={googleMap}></div>
+      {typeof google === "object" &&
+        typeof google.maps === "object" &&
+        typeof google.maps.places === "object" && (
+          <div id="googleMap" ref={mapRef}></div>
+        )}
     </>
   );
 };

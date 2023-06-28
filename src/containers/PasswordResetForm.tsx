@@ -14,7 +14,6 @@ import { NavigateFunction, useNavigate } from "react-router-dom";
 interface IPasswordResetFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setResult: React.Dispatch<React.SetStateAction<string>>;
-  setDetails: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface IFormFields {
@@ -41,7 +40,6 @@ const schema: yup.ObjectSchema<IFormFields> = yup.object({
 export const PasswordResetForm: React.FC<IPasswordResetFormProps> = ({
   setOpen,
   setResult,
-  setDetails,
 }) => {
   const [newPassVisible, setNewPassVisible] = useState<boolean>(false);
 
@@ -74,14 +72,10 @@ export const PasswordResetForm: React.FC<IPasswordResetFormProps> = ({
     if (result === "") {
       setResult("Password is reset.");
 
-      setDetails("Proceeding to the login page.");
-
       return setTimeout(() => navigate("/login"), 2000);
     }
 
     setResult("Password change failed.");
-
-    setDetails(result);
   };
 
   return (

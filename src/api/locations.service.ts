@@ -9,17 +9,28 @@ export default class LocationsService extends BaseHTTPService {
     });
   }
 
+  async guessLocation(
+    id: string,
+    result: string
+  ): Promise<{ guessed: boolean; message: string }> {
+    return await this.post(`locations/guess/${id}`, { result });
+  }
+
   async selectLocations(
     limit: number,
     user?: string
   ): Promise<ILocation[] | string> {
     return await this.get<ILocation[] | string>(
-      `locations?limit=${limit}&user=${user ? user : ""}`
+      `locations?limit=${limit}${user ? `&user=${user}` : ""}`
     );
   }
 
   async selectLocation(id: string): Promise<ILocation> {
     return await this.get<ILocation>(`locations/${id}`);
+  }
+
+  async guessedLocation(id: string): Promise<string | false> {
+    return this.get<string | false>(`locations/${id}/guessed-on`);
   }
 
   async streamImage(filename: string): Promise<Blob> {
@@ -29,23 +40,31 @@ export default class LocationsService extends BaseHTTPService {
     });
   }
 
-  async selectPersonalGuesses(
+  async selectGuesses(
     limit: number,
-    id: string = "",
-    results: number = 1
+    id?: string,
+    user?: string,
+    results?: number
   ): Promise<IGuess[] | string> {
-    return await this.get(
-      `locations/guesses/me?limit=${limit}${
-        id ? `&id=${id}` : ""
-      }&results=${results}`
+    return await this.get<IGuess[] | string>(
+      `locations/guesses/all?limit=${limit}${id ? `&id=${id}` : ""}${
+        user ? `&user=${user}` : ""
+      }${results ? `&results=${results}` : ""}`
     );
   }
 
+  async selectGuess(id: string): Promise<IGuess | string> {
+    return await this.get<IGuess | string>(`locations/guess/${id}`);
+  }
+
   async editLocation(formData: FormData): Promise<string> {
-    return await this.patch(`locations/${formData.get("id")}`, formData);
+    return await this.patch<string>(
+      `locations/${formData.get("id")}`,
+      formData
+    );
   }
 
   async deleteLocation(id: string): Promise<string> {
-    return await this.delete(`locations/${id}`);
+    return await this.delete<string>(`locations/${id}`);
   }
 }

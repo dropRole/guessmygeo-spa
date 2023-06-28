@@ -6,5 +6,5 @@ export interface IGuess {
   result: number;
   guessedAt: Date;
   location: ILocation;
-  guesser: IUser;
+  user: IUser;
 }

@@ -7,13 +7,13 @@ import { IUser } from "../interfaces/user.interface";
 import { Tooltip } from "@mui/material";
 import locationCreator from "../assets/icons/authorization.png";
 import Cookies from "universal-cookie";
-import { useLocation } from "react-router-dom";
+import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import locationEdit from "../assets/icons/edit.png";
 import locationDelete from "../assets/icons/delete.png";
+import AuthService from "../api/auth.service";
 
 interface ILocationCardProps {
   location: ILocation;
-  creator?: IUser;
   setLocationToEdit?: React.Dispatch<
     React.SetStateAction<ILocation | undefined>
   >;
@@ -28,7 +28,6 @@ interface ILocationCardProps {
 
 export const LocationCard: React.FC<ILocationCardProps> = ({
   location,
-  creator,
   setLocationToEdit,
   setLocationDialogOpen,
   setLocationDialogType,
@@ -36,34 +35,71 @@ export const LocationCard: React.FC<ILocationCardProps> = ({
   setLocationDeletionDialogOpen,
   setLocationToDelete,
 }) => {
+  const [user, setUser] = useState<IUser | undefined>(undefined);
+
   const [locationImage, setLocationImage] = useState<Blob>(new Blob());
+
+  const [guessedLocation, setGuessedLocation] = useState<boolean>(false);
+
+  const authService: AuthService = new AuthService();
 
   const locationsService: LocationsService = new LocationsService();
 
   const cookies: Cookies = new Cookies();
 
+  const pathname: string = useLocation().pathname;
+
   useEffect(() => {
+    const getUserInfo: () => void = async () => {
+      const info: IUser | string = await authService.selectInfo();
+
+      // user info fetched
+      if (typeof info !== "string") setUser({ ...info });
+    };
+
     const getImage: (image: string) => void = async (image: string) => {
       const result: Blob = await locationsService.streamImage(image);
 
-      // streamed image
+      // streamed location image
       if (result instanceof Blob) setLocationImage(result);
     };
 
-    // if edited
+    const guessedLocation: () => void = async () => {
+      const guessed: string | false = await locationsService.guessedLocation(
+        location.id
+      );
+
+      // location was guessed
+      if (guessed) setGuessedLocation(true);
+    };
+
+    // user guessed location
+    if (pathname === "/" && cookies.get("guessmygeo_token")) guessedLocation();
+
+    // location being edited
     if (locationEdited && locationEdited.id === location.id) {
       getImage(locationEdited.image);
 
       return;
     }
 
+    // user is logged in
+    if (cookies.get("guessmygeo_token")) getUserInfo();
+
     getImage(location.image);
   }, [locationEdited]);
 
-  const pathname: string = useLocation().pathname;
+  const navigate: NavigateFunction = useNavigate();
 
-  return (
-    <div className="card">
+  return !guessedLocation ? (
+    <div
+      className="card"
+      onClick={() => {
+        // logged in user is not an author
+        if (user && user.username !== location.user.username)
+          navigate(`/location-guess?idLocations=${location.id}`);
+      }}
+    >
       <img
         loading="lazy"
         className="location-image"
@@ -75,7 +111,7 @@ export const LocationCard: React.FC<ILocationCardProps> = ({
           <img loading="lazy" src={lock} alt="location locked" />
         </div>
       )}
-      {creator && location.user.username === creator.username ? (
+      {user && location.user.username === user.username ? (
         pathname !== "/profile" ? (
           <Tooltip placement="bottom" title="Creator of" enterTouchDelay={0}>
             <div className="location-creator">
@@ -111,5 +147,7 @@ export const LocationCard: React.FC<ILocationCardProps> = ({
         <></>
       )}
     </div>
+  ) : (
+    <></>
   );
 };

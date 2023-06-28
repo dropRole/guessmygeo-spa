@@ -1,0 +1,42 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  div#guessingLeaderboard {
+    padding: 0 32px;
+  }
+
+  div#guessingLeaderboard > p {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+
+    letter-spacing: 0.25px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  div#guessingLeaderboard {
+    margin-top: 60px;
+
+    width: 100%;
+  }
+
+  div#guessingLeaderboard > p {
+    font-size: 34px;
+    letter-spacing: 0.25px;
+
+    margin: 0;
+  }
+}
+
+div#guessingLeaderboard {
+  margin-bottom: 60px;
+}
+
+div#guessingLeaderboard > button {
+  width: fit-content !important;
+
+  left: 50%;
+  transform: translateX(-50%);
+
+  margin-top: 20px;
+}

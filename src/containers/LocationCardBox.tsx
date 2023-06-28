@@ -48,25 +48,25 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({
 
   const locationsService: LocationsService = new LocationsService();
 
-  const location: Location = useLocation();
+  const pathname: string = useLocation().pathname;
 
   useEffect(() => {
     const getLocations: () => void = async () => {
       const locations: ILocation[] | string =
         await locationsService.selectLocations(
           limit,
-          user && location.pathname === "/profile" ? user.username : undefined
+          user && pathname === "/profile" ? user.username : undefined
         );
 
-      // fetch succeeded
+      // locations fetch succeeded
       if (locations instanceof Array) {
         setLocations(locations);
 
-        // limit exceeded
+        // limit of locations exceeded
         if (limit > locations.length) setLoadMore(false);
       }
 
-      // fethc failed
+      // locations fetch failed
       if (typeof locations === "string") setFetchError(locations);
     };
 
@@ -83,7 +83,6 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({
         <LocationCard
           key={location.id}
           location={location}
-          creator={user}
           setLocationToEdit={setLocationToEdit}
           setLocationDialogOpen={setLocationDialogOpen}
           setLocationDialogType={setLocationDialogType}
