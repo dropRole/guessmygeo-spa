@@ -1,5 +1,5 @@
 import { CircularProgress, Dialog, DialogContent } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { TextButton } from "./TextButton";
 import "./ResultDialog.css";
 
@@ -16,6 +16,8 @@ export const ResultDialog: React.FC<IResultDialogProps> = ({
   result,
   setResult,
 }) => {
+  useEffect(() => {}, [result])
+
   return (
     <Dialog id="resultDialog" open={open}>
       <DialogContent>

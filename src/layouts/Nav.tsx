@@ -138,53 +138,63 @@ export const Nav: React.FC<INavProps> = ({
       <div id="menu" className={menuWidth}>
         {cookies.get("guessmygeo_token") ? (
           <>
-            <AddButton
-              className={`btn-add ${addBtnDisplay} ${addBtnOpacity}`}
-              clickAction={() => {
-                setLocationDialogOpen && setLocationDialogOpen(true);
+            {!(
+              cookies.get("guessmygeo_privilege") &&
+              cookies.get("guessmygeo_privilege") === "admin"
+            ) && (
+              <>
+                <AddButton
+                  className={`btn-add ${addBtnDisplay} ${addBtnOpacity}`}
+                  clickAction={() => {
+                    setLocationDialogOpen && setLocationDialogOpen(true);
 
-                setLocationDialogType && setLocationDialogType("add");
-              }}
-            />
-            <div
-              id="profileAvatar"
-              className={`${menuItemDisplay} ${menuItemOpacity}`}
-              onClick={() => navigate('/profile')}
-            >
-              <img
-                loading="lazy"
-                src={
-                  user && user.avatar && typeof user.avatar === "string"
-                    ? user.avatar
-                    : URL.createObjectURL(user?.avatar as Blob)
-                }
-                className="avatar"
-                alt="user avatar"
-              />
-              {user && user.username}
-            </div>
-            <div
-              className={`${menuItemDisplay} ${menuItemOpacity}`}
-              onClick={() =>
-                setSettingsDialogOpen && setSettingsDialogOpen(true)
-              }
-            >
-              <span>Settings</span>
-              <img
-                loading="eager"
-                src={chevron}
-                className="right-chevron"
-                alt=">"
-              />
-            </div>
+                    setLocationDialogType && setLocationDialogType("add");
+                  }}
+                />
+                <div
+                  id="profileAvatar"
+                  className={`${menuItemDisplay} ${menuItemOpacity}`}
+                  onClick={() => navigate("/profile")}
+                >
+                  <img
+                    loading="lazy"
+                    src={
+                      user && user.avatar && typeof user.avatar === "string"
+                        ? user.avatar
+                        : URL.createObjectURL(user?.avatar as Blob)
+                    }
+                    className="avatar"
+                    alt="user avatar"
+                  />
+                  {user && user.username}
+                </div>
+                <div
+                  className={`${menuItemDisplay} ${menuItemOpacity}`}
+                  onClick={() =>
+                    setSettingsDialogOpen && setSettingsDialogOpen(true)
+                  }
+                >
+                  <span>Settings</span>
+                  <img
+                    loading="eager"
+                    src={chevron}
+                    className="right-chevron"
+                    alt=">"
+                  />
+                </div>
+              </>
+            )}
             <div
               className={`${menuItemDisplay} ${menuItemOpacity}`}
               onClick={() => {
+                navigate("/login");
+                
                 cookies.remove("guessmygeo_token");
+
+                cookies.remove("guessmygeo_privilege");
 
                 document.removeEventListener("scroll", recordScrollAction);
 
-                navigate("/login");
               }}
             >
               <span className="color-primary">Logout</span>
@@ -232,7 +242,7 @@ export const Nav: React.FC<INavProps> = ({
             !cookies.get("guessmygeo_token")
               ? "flex-grow-1 justify-content-start"
               : ""
-          }`}
+          } ${cookies.get("guessmygeo_privilege") ? "grow-inscription" : ""}`}
         onClick={() => navigate("/")}
       >
         <aside className="display-flex flex-column">

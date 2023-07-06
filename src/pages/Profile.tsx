@@ -10,10 +10,10 @@ import { LocationCardBox } from "../containers/LocationCardBox";
 import { ILocation } from "../interfaces/location.interface";
 import { LocationDialog } from "../containers/LocationDialog";
 import { SettingsDialog } from "../containers/SettingsDialog";
-import LocationsService from "../api/locations.service";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { LocationDeletionDialog } from "../components/LocationDeletionDialog";
 import { ResultDialog } from "../components/ResultDialog";
+import Cookies from "universal-cookie";
 
 export const Profile = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
@@ -57,6 +57,8 @@ export const Profile = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const authService: AuthService = new AuthService();
+
+  const cookies: Cookies = new Cookies();
 
   useEffect(() => {
     const streamAvatar: (path: string) => Promise<Blob> = async (
@@ -118,12 +120,13 @@ export const Profile = () => {
       });
     else setSpectatedUser(undefined);
 
-    getUserInfo();
+    // user logged in
+    if (cookies.get("guessmygeo_token") && !cookies.get("guessmygeo_privilege"))
+      getUserInfo();
   }, [searchParams]);
 
-  const locationsService: LocationsService = new LocationsService();
-
-  return (
+  return !cookies.get("guessmygeo_privilege") &&
+    cookies.get("guessmygeo_token") ? (
     <>
       <Nav
         user={user}
@@ -196,5 +199,7 @@ export const Profile = () => {
       />
       <Footer />
     </>
+  ) : (
+    <Navigate to="/panel" />
   );
 };

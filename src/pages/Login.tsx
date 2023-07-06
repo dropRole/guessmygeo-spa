@@ -9,6 +9,8 @@ import { Dialog, DialogContent, CircularProgress } from "@mui/material";
 import { TextButton } from "../components/TextButton";
 import { LoginForm } from "../containers/LoginForm";
 import { PasswordClaimForm } from "../components/PasswordClaimForm";
+import Cookies from "universal-cookie";
+import { Navigate } from "react-router-dom";
 
 export const Login: React.FC = () => {
   const [form, setForm] = useState<"login" | "reset">("login");
@@ -19,7 +21,10 @@ export const Login: React.FC = () => {
 
   const [loginDetails, setLoginDetails] = useState<string>("");
 
-  return (
+  const cookies: Cookies = new Cookies();
+
+  return !cookies.get("guessmygeo_privilege") &&
+    !cookies.get("guessmygeo_token") ? (
     <div id="loginSectionDivider">
       <div>
         <Nav />
@@ -84,5 +89,7 @@ export const Login: React.FC = () => {
         </DialogContent>
       </Dialog>
     </div>
+  ) : (
+    <Navigate to="/" />
   );
 };

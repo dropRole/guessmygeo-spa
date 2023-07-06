@@ -20,7 +20,11 @@ export const HamburgerButton: React.FC<IHamburgerButtonProps> = ({
         clickAction();
 
         // logged in user
-        if (cookies.get("guessmygeo_token")) recordClickAction();
+        if (
+          cookies.get("guessmygeo_token") &&
+          !cookies.get("guessmygeo_privilege")
+        )
+          recordClickAction();
       }}
     >
       <span></span>
