@@ -1119,7 +1119,7 @@
   resolved "https://registry.yarnpkg.com/@babel/regjsgen/-/regjsgen-0.8.0.tgz#f0ba69b075e1f05fb2825b7fad991e7adbb18310"
   integrity sha512-x/rqGMdzj+fWZvCOYForTghzbtqPDZ5gPwaoNGHdgDfF2QA/XZbCBp4Moo5scrkAMPhB7z26XM/AaHuIJdgauA==
 
-"@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.7", "@babel/runtime@^7.21.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.16.3", "@babel/runtime@^7.18.3", "@babel/runtime@^7.20.7", "@babel/runtime@^7.21.0", "@babel/runtime@^7.22.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.22.5"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.22.5.tgz#8564dd588182ce0047d55d7a75e93921107b57ec"
   integrity sha512-ecjvYlnAaZ/KVneE/OdKYBYfgXV3Ptu6zQWmgEF7vwKhQnvVS6bjMD2XYgj+SNvQ1GfK/pjgokfPkC/2CO8CuA==
@@ -1833,6 +1833,28 @@
     "@types/react-is" "^18.2.0"
     prop-types "^15.8.1"
     react-is "^18.2.0"
+
+"@mui/utils@^5.13.6":
+  version "5.13.6"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-5.13.6.tgz#aa29d75de59577585b9f23891b03592d40459ed7"
+  integrity sha512-ggNlxl5NPSbp+kNcQLmSig6WVB0Id+4gOxhx644987v4fsji+CSXc+MFYLocFB/x4oHtzCUlSzbVHlJfP/fXoQ==
+  dependencies:
+    "@babel/runtime" "^7.22.5"
+    "@types/prop-types" "^15.7.5"
+    "@types/react-is" "^18.2.0"
+    prop-types "^15.8.1"
+    react-is "^18.2.0"
+
+"@mui/x-data-grid@^6.9.1":
+  version "6.9.1"
+  resolved "https://registry.yarnpkg.com/@mui/x-data-grid/-/x-data-grid-6.9.1.tgz#c18da0fa0b0ead1452a6e4cd2683dff21cca7f40"
+  integrity sha512-nJjvyGHRh8fWSF+VZYtN/gwDRRv/0V3AvbwlIMKRtEiXNUxPxGZ8G0J8dpq9zu6VSDU2AbQ/Prl1yfrnHiPQog==
+  dependencies:
+    "@babel/runtime" "^7.22.5"
+    "@mui/utils" "^5.13.6"
+    clsx "^1.2.1"
+    prop-types "^15.8.1"
+    reselect "^4.1.8"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
@@ -8396,6 +8418,11 @@ requires-port@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==
+
+reselect@^4.1.8:
+  version "4.1.8"
+  resolved "https://registry.yarnpkg.com/reselect/-/reselect-4.1.8.tgz#3f5dc671ea168dccdeb3e141236f69f02eaec524"
+  integrity sha512-ab9EmR80F/zQTMNeneUr4cv+jSwPJgIlvEmVwLerwrWVbpLlBuls9XHzIeTFy4cegU2NHBp3va0LKOzU5qFEYQ==
 
 resolve-cwd@^3.0.0:
   version "3.0.0"

@@ -79,7 +79,7 @@ export const GuessingForm: React.FC<IGuessingFormProps> = ({
 
     // guess passed
     if (guess) setErrorDistance(`${guess.result}m`);
-
+    
     // location passed
     if (location) {
       streamImage();
@@ -105,7 +105,7 @@ export const GuessingForm: React.FC<IGuessingFormProps> = ({
         lng: position.coords.longitude,
       });
     });
-  }, [location, locationGuessed]);
+  }, [location, guess, locationGuessed]);
 
   const calculateHaversineDistance = (location: ILocation) => {
     const rad = (x: number) => {

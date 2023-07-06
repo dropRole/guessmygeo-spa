@@ -1,17 +1,15 @@
 import "./App.css";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Home } from "./pages/Home";
-import Cookies from "universal-cookie";
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
 import { PageNotFound } from "./pages/PageNotFound";
 import { PasswordReset } from "./pages/PasswordReset";
 import { Profile } from "./pages/Profile";
 import { LocationGuess } from "./pages/LocationGuess";
+import { AdminPanel } from "./pages/AdminPanel";
 
 function App() {
-  const cookies: Cookies = new Cookies();
-
   return (
     <>
       <BrowserRouter>
@@ -19,23 +17,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/location-guess" element={<LocationGuess />} />
-          <Route
-            path="/register"
-            element={
-              cookies.get("guessmygeo_token") ? (
-                <Navigate to="/" />
-              ) : (
-                <Register />
-              )
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              cookies.get("guessmygeo_token") ? <Navigate to="/" /> : <Login />
-            }
-          />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/pass-reset" element={<PasswordReset />} />
+          <Route path="/panel" element={<AdminPanel />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>

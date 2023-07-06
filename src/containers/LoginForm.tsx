@@ -58,7 +58,10 @@ export const LoginForm: React.FC<ILoginFormProps> = ({
   ) => {
     setOpen(true);
 
-    const result: string = await authService.login(data.username, data.pass);
+    const result: { [key: string]: string } = await authService.login(
+      data.username,
+      data.pass
+    );
 
     // succeeded
     if (typeof result !== "string") {
@@ -67,9 +70,21 @@ export const LoginForm: React.FC<ILoginFormProps> = ({
       setDetails("Redirecting.");
 
       setTimeout(() => {
-        navigate("/");
+        const { jwt, privilege } = result;
 
-        const { jwt } = result;
+        // admin logged in
+        if (privilege && privilege === "admin") {
+          navigate("/panel");
+
+          cookies.set("guessmygeo_privilege", "admin", {
+            path: "/",
+            expires: new Date(
+              new Date().setMilliseconds(
+                new Date().getMilliseconds() + 86400000
+              )
+            ),
+          });
+        } else navigate("/");
 
         cookies.set("guessmygeo_token", jwt, {
           path: "/",

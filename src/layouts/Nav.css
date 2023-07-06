@@ -54,6 +54,10 @@
     font-weight: 600;
   }
 
+  div.grow-inscription {
+    flex-grow: 1;
+  }
+
   div#inscription > aside {
     top: 10px;
 

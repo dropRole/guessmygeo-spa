@@ -13,6 +13,7 @@ import { LocationDialog } from "../containers/LocationDialog";
 import { recordScrollAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
 import { IGuesser } from "../containers/GuessingLeaderboard";
+import { Navigate } from "react-router-dom";
 
 export const Home: React.FC = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
@@ -31,7 +32,10 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     // user logged in
-    if (cookies.get("guessmygeo_token")) {
+    if (
+      cookies.get("guessmygeo_token") &&
+      !cookies.get("guessmygeo_privilege")
+    ) {
       const getUserInfo: () => void = async () => {
         const info: IUser | string = await authService.selectInfo();
 
@@ -58,7 +62,7 @@ export const Home: React.FC = () => {
     }
   }, []);
 
-  return (
+  return !cookies.get("guessmygeo_privilege") ? (
     <div>
       <Nav
         user={user}
@@ -101,5 +105,7 @@ export const Home: React.FC = () => {
       )}
       <Footer />
     </div>
+  ) : (
+    <Navigate to="/panel" />
   );
 };

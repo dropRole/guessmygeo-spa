@@ -8,6 +8,7 @@
     "@googlemaps/js-api-loader": "^1.15.2",
     "@hookform/resolvers": "^3.1.1",
     "@mui/material": "^5.13.5",
+    "@mui/x-data-grid": "^6.9.1",
     "@react-email/head": "^0.0.5",
     "@react-email/hr": "^0.0.5",
     "@react-email/html": "^0.0.4",

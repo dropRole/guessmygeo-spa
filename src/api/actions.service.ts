@@ -1,4 +1,5 @@
 import { ActionType } from "../helpers/actions-utility";
+import { IAction } from "../interfaces/action.interface";
 import BaseHTTPService from "./base-http.service";
 
 export default class ActionsService extends BaseHTTPService {
@@ -9,5 +10,18 @@ export default class ActionsService extends BaseHTTPService {
     url: URL
   ): Promise<string> {
     return await this.post<string>("actions", { type, component, value, url });
+  }
+
+  async selectActions(
+    limit: number,
+    search?: string
+  ): Promise<IAction[] | string> {
+    return await this.get<IAction[] | string>(
+      `actions?limit=${limit}${search ? `&search=${search}` : ""}`
+    );
+  }
+
+  async removeAction(id: string): Promise<boolean> {
+    return await this.delete<boolean>(`actions/${id}`);
   }
 }

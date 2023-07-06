@@ -12,8 +12,9 @@ import "./LocationGuess.css";
 import AuthService from "../api/auth.service";
 import { SettingsDialog } from "../containers/SettingsDialog";
 import { LocationDialog } from "../containers/LocationDialog";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { ResultDialog } from "../components/ResultDialog";
+import Cookies from "universal-cookie";
 
 export const LocationGuess: React.FC = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
@@ -109,7 +110,9 @@ export const LocationGuess: React.FC = () => {
     }
   }, []);
 
-  return (
+  const cookies: Cookies = new Cookies()
+
+  return !cookies.get("guessmygeo_privilege") && cookies.get("guessmygeo_token") ? (
     <>
       <Nav
         user={user}
@@ -153,5 +156,5 @@ export const LocationGuess: React.FC = () => {
       />
       <Footer />
     </>
-  );
+  ) : <Navigate to="/panel" />;
 };

@@ -8,6 +8,8 @@ import largeTopLogoVector from "../assets/icons/large-top-logo-vector.png";
 import largeBottomLogoVector from "../assets/icons/large-bottom-logo-vector.png";
 import { Dialog, DialogContent, CircularProgress } from "@mui/material";
 import { TextButton } from "../components/TextButton";
+import Cookies from "universal-cookie";
+import { Navigate } from "react-router-dom";
 
 export const Register: React.FC = () => {
   const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
@@ -16,7 +18,10 @@ export const Register: React.FC = () => {
 
   const [registerDetails, setRegisterDetails] = useState<string>("");
 
-  return (
+  const cookies: Cookies = new Cookies();
+
+  return !cookies.get("guessmygeo_privilege") &&
+    !cookies.get("guessmygeo_token") ? (
     <div id="registerSectionDivider">
       <div>
         <Nav />
@@ -67,5 +72,7 @@ export const Register: React.FC = () => {
         </DialogContent>
       </Dialog>
     </div>
+  ) : (
+    <Navigate to="/" />
   );
 };

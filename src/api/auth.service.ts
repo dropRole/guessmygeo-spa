@@ -18,8 +18,14 @@ export default class AuthService extends BaseHTTPService {
     });
   }
 
-  async login(username: string, pass: string): Promise<string> {
-    return await this.post("auth/login", { username, pass });
+  async login(
+    username: string,
+    pass: string
+  ): Promise<{ [key: string]: string }> {
+    return await this.post<{ [key: string]: string }>("auth/login", {
+      username,
+      pass,
+    });
   }
 
   async signPassResetJWT(
