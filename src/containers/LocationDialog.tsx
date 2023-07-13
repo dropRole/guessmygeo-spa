@@ -16,23 +16,10 @@ import { Map } from "./Map";
 import { TextButton } from "../components/TextButton";
 import LocationsService from "../api/locations.service";
 import { recordInputAction } from "../helpers/actions-utility";
-import { ILocation } from "../interfaces/location.interface";
-
-interface ILocationDialogProps {
-  type: "add" | "edit";
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  locationToEdit?: ILocation;
-  setLocationEdited?: React.Dispatch<
-    React.SetStateAction<ILocation | undefined>
-  >;
-}
-
-interface ILocationFormFields {
-  id: string | undefined;
-  caption: string | undefined;
-  location: any;
-}
+import ILocation from "../api/interfaces/location.interface";
+import { streamLocationImage } from "../helpers/locations-utility";
+import { ILocationFormFields } from "./interfaces/form";
+import { ILocationDialogProps } from "./interfaces/dialog";
 
 const schema: yup.ObjectSchema<ILocationFormFields> = yup.object({
   id: yup.string().optional(),
@@ -66,66 +53,44 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
   locationToEdit,
   setLocationEdited,
 }) => {
-  const [locationCaption, setLocationCaption] = useState<string>("");
-
   const [locationImagePreview, setLocationImagePreview] = useState<
     Blob | string
   >(imagePlaceholder);
 
-  const [mapCurrentCoords, setMapCurrentCoords] = useState<{
+  const [mapInitialCoords, setMapInitialCoords] = useState<{
     lat: number;
     lng: number;
   }>({ lat: 0, lng: 0 });
 
-  const [mapExposeCoords, setMapExposeCoords] = useState<{
-    lat: number;
-    lng: number;
-  }>({ lat: 0, lng: 0 });
+  const [mapCurrentCoords, setMapCurrentCoords] =
+    useState<typeof mapInitialCoords>(mapInitialCoords);
 
   const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
 
-  const [operationResult, setOperationResult] = useState<string>("");
+  const [result, setResult] = useState<string>("");
 
-  const [operationDetails, setOperationDetails] = useState<string>("");
+  const [details, setDetails] = useState<string>("");
 
   const locationsService: LocationsService = new LocationsService();
 
   useEffect(() => {
     // editing the passed location
     if (type === "edit" && locationToEdit) {
-      setLocationCaption(locationToEdit.caption);
+      streamLocationImage(
+        locationToEdit.image as string,
+        setLocationImagePreview
+      );
 
-      const streamImage: () => void = async () => {
-        const image: Blob = await locationsService.streamImage(
-          locationToEdit.image
-        );
-
-        setLocationImagePreview(image);
-      };
-      streamImage();
-
-      setMapCurrentCoords({
-        lat: parseFloat(locationToEdit.lat.toString()),
-        lng: parseFloat(locationToEdit.lon.toString()),
-      });
-
-      return setMapExposeCoords({
+      return setMapInitialCoords({
         lat: parseFloat(locationToEdit.lat.toString()),
         lng: parseFloat(locationToEdit.lon.toString()),
       });
     }
 
-    setLocationCaption("");
-
     setLocationImagePreview(imagePlaceholder);
 
     navigator.geolocation.getCurrentPosition((position) => {
-      setMapCurrentCoords({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      });
-
-      setMapExposeCoords({
+      setMapInitialCoords({
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       });
@@ -157,14 +122,14 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
 
       // failed
       if (result !== "") {
-        setOperationResult("Location addition failed.");
+        setResult("Location addition failed.");
 
-        return setOperationDetails(result);
+        return setDetails(result);
       }
 
-      setOperationResult("Location added.");
+      setResult("Location added.");
 
-      return setOperationDetails("Location image was uploaded.");
+      return setDetails("Location image was uploaded.");
     }
 
     // to edit
@@ -175,13 +140,13 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
 
       // failed
       if (result !== "") {
-        setOperationResult("Location addition failed.");
+        setResult("Location addition failed.");
 
-        return setOperationDetails(result);
+        return setDetails(result);
       }
 
       const editedImage: string = (
-        await locationsService.selectLocation(locationToEdit.id)
+        (await locationsService.selectLocation(locationToEdit.id)) as ILocation
       ).image;
 
       setLocationEdited &&
@@ -190,9 +155,9 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
           image: editedImage,
         });
 
-      setOperationResult("Location edited.");
+      setResult("Location edited.");
 
-      setOperationDetails("Location image was re-uploaded.");
+      setDetails("Location image was re-uploaded.");
     }
   };
   return (
@@ -211,9 +176,9 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
             variant="standard"
             color="success"
             {...register("caption", {
-              value: locationCaption,
+              value: locationToEdit ? locationToEdit.caption : "",
             })}
-            placeholder={locationCaption}
+            placeholder={locationToEdit ? locationToEdit.caption : ""}
             data-error={errors.caption ? errors.caption.message : ""}
             onBlur={recordInputAction}
           />
@@ -238,9 +203,9 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
             ></span>
           </div>
           <Map
+            initialCoords={mapInitialCoords}
             currentCoords={mapCurrentCoords}
             setCurrentCoords={setMapCurrentCoords}
-            exposeCoords={mapExposeCoords}
             disabled={type === "edit" ? true : false}
           />
           <input
@@ -267,18 +232,18 @@ export const LocationDialog: React.FC<ILocationDialogProps> = ({
       </DialogContent>
       <Dialog id="locationAddResultDialog" open={resultDialogOpen}>
         <DialogContent>
-          {operationResult && operationDetails ? (
+          {result && details ? (
             <>
-              <p>{operationResult}</p>
-              <p>{operationDetails}</p>
+              <p>{result}</p>
+              <p>{details}</p>
               <TextButton
                 className="btn-text btn-fill-light"
                 type="button"
                 text="Close"
                 clickAction={() => {
-                  setOperationResult("");
+                  setResult("");
 
-                  setOperationDetails("");
+                  setDetails("");
 
                   setResultDialogOpen(false);
                 }}

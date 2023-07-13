@@ -1,0 +1,52 @@
+@media screen and (min-width: 320px) and (max-width: 992px) {
+  #detailedResultDialog .MuiPaper-root {
+    width: 350px;
+    height: 200px;
+  }
+
+  #detailedResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  #detailedResultDialog .MuiPaper-root {
+    width: 600px;
+    height: 200px;
+  }
+
+  #detailedResultDialog .MuiDialogContent-root > p:nth-child(1) {
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 40px;
+
+    letter-spacing: 0.25px;
+
+    margin: 15px 0 20px 0;
+  }
+}
+
+#resultDialog .MuiPaper-root {
+  width: 360px;
+  height: 170px;
+}
+
+#resultDialog .MuiDialogContent-root {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 28px;
+
+  text-align: center;
+}
+
+#resultDialog .circular-progress,
+#detailedResultDialog .circular-progress {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: fit-content;
+}

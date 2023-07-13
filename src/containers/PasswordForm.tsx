@@ -8,18 +8,7 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AuthService from "../api/auth.service";
-
-interface IPasswordFormProps {
-  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setEditResult: React.Dispatch<React.SetStateAction<string>>;
-  setEditDetails: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface IPasswordFormFields {
-  pass: string;
-  newPass: string;
-  confirmPass: string;
-}
+import { IPasswordFormFields, IPasswordFormProps } from "./interfaces/form";
 
 const schema: yup.ObjectSchema<{
   pass: string;
@@ -48,9 +37,9 @@ const schema: yup.ObjectSchema<{
 });
 
 export const PasswordForm: React.FC<IPasswordFormProps> = ({
-  setDialogOpen,
-  setEditResult,
-  setEditDetails,
+  setActionResultDialogOpen: setEditDialogOpen,
+  setActionResult: setEditResult,
+  setActionDetails: setEditDetails,
 }) => {
   const {
     register,
@@ -69,7 +58,7 @@ export const PasswordForm: React.FC<IPasswordFormProps> = ({
   const onSubmit: SubmitHandler<IPasswordFormFields> = async (
     data: IPasswordFormFields
   ) => {
-    setDialogOpen(true);
+    setEditDialogOpen(true);
 
     const result: string = await authService.changePass(
       data.pass,
@@ -80,12 +69,12 @@ export const PasswordForm: React.FC<IPasswordFormProps> = ({
     if (typeof result === "string" && result !== "") {
       setEditResult("Password change failed.");
 
-      return setEditDetails(result);
+      return setEditDetails && setEditDetails(result);
     }
 
     setEditResult("Password changed.");
 
-    setEditDetails("You're password is saved.");
+    setEditDetails && setEditDetails("You're password is saved.");
   };
 
   return (

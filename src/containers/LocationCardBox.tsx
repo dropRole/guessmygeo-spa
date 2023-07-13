@@ -1,32 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { ILocation } from "../interfaces/location.interface";
+import ILocation from "../api/interfaces/location.interface";
 import { LocationCard } from "../containers/LocationCard";
 import "./CardBox.css";
 import { TextButton } from "../components/TextButton";
-import {
-  Location,
-  NavigateFunction,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
-import { IUser } from "../interfaces/user.interface";
+import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 import LocationsService from "../api/locations.service";
-
-interface ILocationCardBoxProps {
-  user?: IUser;
-  setLocationToEdit?: React.Dispatch<
-    React.SetStateAction<ILocation | undefined>
-  >;
-  setLocationDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  setLocationDialogType?: React.Dispatch<React.SetStateAction<"add" | "edit">>;
-  locationEdited?: ILocation | undefined;
-  setLocationDeletionDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  setLocationToDelete?: React.Dispatch<
-    React.SetStateAction<ILocation | undefined>
-  >;
-  deletedLocation?: ILocation | undefined;
-}
+import { ILocationCardBoxProps } from "./interfaces/card";
 
 export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({
   user,
@@ -40,9 +20,7 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({
 }) => {
   const [locations, setLocations] = useState<ILocation[]>([]);
 
-  const [limit, setLimit] = useState(6);
-
-  const [loadMore, setLoadMore] = useState<boolean>(true);
+  const [loadLimit, setLoadLimit] = useState(6);
 
   const [fetchError, setFetchError] = useState<string>("");
 
@@ -50,28 +28,25 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({
 
   const pathname: string = useLocation().pathname;
 
+  const getLocations: () => void = async () => {
+    const locations: ILocation[] | string =
+      await locationsService.selectLocations(
+        loadLimit,
+        user && pathname === "/profile" ? user.username : undefined
+      );
+
+    // locations fetch succeeded
+    if (locations instanceof Array) {
+      setLocations(locations);
+    }
+
+    // locations fetch failed
+    if (typeof locations === "string") setFetchError(locations);
+  };
+
   useEffect(() => {
-    const getLocations: () => void = async () => {
-      const locations: ILocation[] | string =
-        await locationsService.selectLocations(
-          limit,
-          user && pathname === "/profile" ? user.username : undefined
-        );
-
-      // locations fetch succeeded
-      if (locations instanceof Array) {
-        setLocations(locations);
-
-        // limit of locations exceeded
-        if (limit > locations.length) setLoadMore(false);
-      }
-
-      // locations fetch failed
-      if (typeof locations === "string") setFetchError(locations);
-    };
-
     getLocations();
-  }, [user, limit, locationEdited, deletedLocation]);
+  }, [user, loadLimit, locationEdited, deletedLocation]);
 
   const navigate: NavigateFunction = useNavigate();
 
@@ -92,13 +67,13 @@ export const LocationCardBox: React.FC<ILocationCardBoxProps> = ({
         />
       ))}
       {cookies.get("guessmygeo_token") ? (
-        loadMore && (
+        loadLimit === locations.length && (
           <p className="text-center">
             <TextButton
               className="btn-text btn-outline"
               type="button"
               text="LOAD MORE"
-              clickAction={() => setLimit(limit + 6)}
+              clickAction={() => setLoadLimit(loadLimit + 6)}
             />
           </p>
         )

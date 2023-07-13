@@ -1,6 +1,5 @@
 import { TextField } from "@mui/material";
 import React from "react";
-import { IUser } from "../interfaces/user.interface";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -8,21 +7,7 @@ import { SubmitHandler } from "react-hook-form/dist/types";
 import AuthService from "../api/auth.service";
 import { recordInputAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
-
-interface IBasicsFormProps {
-  user: IUser;
-  setUser: React.Dispatch<React.SetStateAction<IUser>>;
-  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setEditResult: React.Dispatch<React.SetStateAction<string>>;
-  setEditDetails: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface IBasicsFormFields {
-  email: string;
-  username: string;
-  name: string;
-  surname: string;
-}
+import { IBasicsFormFields, IBasicsFormProps } from "./interfaces/form";
 
 const schema: yup.ObjectSchema<IBasicsFormFields> = yup.object({
   email: yup.string().required().max(320),
@@ -34,9 +19,9 @@ const schema: yup.ObjectSchema<IBasicsFormFields> = yup.object({
 export const BasicsForm: React.FC<IBasicsFormProps> = ({
   user,
   setUser,
-  setDialogOpen,
-  setEditResult,
-  setEditDetails,
+  setActionResultDialogOpen: setEditResultDialogOpen,
+  setActionResult: setEditResult,
+  setActionDetails: setEditDetails,
 }) => {
   const {
     register,
@@ -51,7 +36,7 @@ export const BasicsForm: React.FC<IBasicsFormProps> = ({
   const onSubmit: SubmitHandler<IBasicsFormFields> = async (
     data: IBasicsFormFields
   ) => {
-    setDialogOpen(true);
+    setEditResultDialogOpen(true);
 
     const result: { jwt: string } | string = await authService.editInfo(
       data.username,
@@ -64,7 +49,7 @@ export const BasicsForm: React.FC<IBasicsFormProps> = ({
     if (typeof result === "string") {
       setEditResult("An error occured.");
 
-      return setEditDetails(result);
+      return setEditDetails && setEditDetails(result);
     }
 
     const { jwt } = result;
@@ -83,7 +68,7 @@ export const BasicsForm: React.FC<IBasicsFormProps> = ({
 
     setEditResult("Basics changed.");
 
-    setEditDetails("You're basics are saved.");
+    setEditDetails && setEditDetails("You're basics are saved.");
   };
 
   return (

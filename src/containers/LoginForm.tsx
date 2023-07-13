@@ -10,18 +10,7 @@ import { TextButton } from "../components/TextButton";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import AuthService from "../api/auth.service";
 import Cookies from "universal-cookie";
-
-interface ILoginFormProps {
-  setForm: React.Dispatch<React.SetStateAction<"login" | "reset">>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setResult: React.Dispatch<React.SetStateAction<string>>;
-  setDetails: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface ILoginFormFields {
-  username: string;
-  pass: string;
-}
+import { ILoginFormFields, ILoginFormProps } from "./interfaces/form";
 
 const schema: yup.ObjectSchema<ILoginFormFields> = yup.object({
   username: yup.string().required().min(4).max(20),
@@ -34,10 +23,10 @@ const schema: yup.ObjectSchema<ILoginFormFields> = yup.object({
 });
 
 export const LoginForm: React.FC<ILoginFormProps> = ({
-  setForm,
-  setOpen,
-  setResult,
-  setDetails,
+  setFormType,
+  setActionResultDialogOpen: setLoginResultDialogOpen,
+  setActionResult: setLoginResult,
+  setActionDetails: setLoginDetails,
 }) => {
   const [passVisible, setPassVisible] = useState<boolean>(false);
 
@@ -56,18 +45,18 @@ export const LoginForm: React.FC<ILoginFormProps> = ({
   const onSubmit: SubmitHandler<ILoginFormFields> = async (
     data: ILoginFormFields
   ) => {
-    setOpen(true);
+    setLoginResultDialogOpen(true);
 
-    const result: { [key: string]: string } = await authService.login(
+    const result: { [key: string]: string } | string = await authService.login(
       data.username,
       data.pass
     );
 
     // succeeded
     if (typeof result !== "string") {
-      setResult("Login succeeded.");
+      setLoginResult("Login succeeded.");
 
-      setDetails("Redirecting.");
+      setLoginDetails && setLoginDetails("Redirecting.");
 
       setTimeout(() => {
         const { jwt, privilege } = result;
@@ -97,9 +86,9 @@ export const LoginForm: React.FC<ILoginFormProps> = ({
       return;
     }
 
-    setResult("Login failed.");
+    setLoginResult("Login failed.");
 
-    setDetails(result);
+    setLoginDetails && setLoginDetails(result);
   };
 
   return (
@@ -145,7 +134,7 @@ export const LoginForm: React.FC<ILoginFormProps> = ({
       />
       <p className="display-flex justify-content-between">
         <span>Forgot you're password?</span>
-        <span onClick={() => setForm("reset")}>Reset</span>
+        <span onClick={() => setFormType("reset")}>Reset</span>
       </p>
     </form>
   );

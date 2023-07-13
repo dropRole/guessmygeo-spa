@@ -1,11 +1,7 @@
 import React from "react";
 import { recordClickAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
-
-interface IAddButtonProps {
-  className: string;
-  clickAction: () => void;
-}
+import { IAddButtonProps } from "./interfaces/button";
 
 export const AddButton: React.FC<IAddButtonProps> = ({
   className,
@@ -19,7 +15,7 @@ export const AddButton: React.FC<IAddButtonProps> = ({
       onClick={async () => {
         clickAction();
 
-        // logged in user
+        // authenticated user
         if (cookies.get("guessmygeo_token")) recordClickAction();
       }}
     >

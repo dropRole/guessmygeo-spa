@@ -4,7 +4,6 @@ import {
   DialogContentText,
   DialogTitle,
   DialogActions,
-  CircularProgress,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import "./SettingsDialog.css";
@@ -12,32 +11,22 @@ import { BasicsForm } from "../components/BasicsForm";
 import { TextButton } from "../components/TextButton";
 import { PasswordForm } from "./PasswordForm";
 import { AvatarForm } from "./AvatarForm";
-import { IUser } from "../interfaces/user.interface";
-
-interface ISettingsDialogProps {
-  user: IUser;
-  setUser: React.Dispatch<React.SetStateAction<IUser>>;
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
+import { ISettingsDialogProps } from "./interfaces/dialog";
 
 export const SettingsDialog: React.FC<ISettingsDialogProps> = ({
   user,
   setUser,
   open,
   setOpen,
+  setActionResultDialogOpen: setEditResultDialogOpen,
+  setActionResult: setEditResult,
+  setActionDetails: setEditDetails,
 }) => {
   const [contentText, setContentText] = useState<string>(
     "Change your information."
   );
 
   const [content, setContent] = useState<string>("basicsForm");
-
-  const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
-
-  const [editResult, setEditResult] = useState<string>("");
-
-  const [editDetails, setEditDetails] = useState<string>("");
 
   useEffect(() => {}, [content]);
 
@@ -52,25 +41,25 @@ export const SettingsDialog: React.FC<ISettingsDialogProps> = ({
           <BasicsForm
             user={user}
             setUser={setUser}
-            setDialogOpen={setResultDialogOpen}
-            setEditResult={setEditResult}
-            setEditDetails={setEditDetails}
+            setActionResultDialogOpen={setEditResultDialogOpen}
+            setActionResult={setEditResult}
+            setActionDetails={setEditDetails}
           />
         )}
         {content === "passwordForm" && (
           <PasswordForm
-            setDialogOpen={setResultDialogOpen}
-            setEditResult={setEditResult}
-            setEditDetails={setEditDetails}
+            setActionResultDialogOpen={setEditResultDialogOpen}
+            setActionResult={setEditResult}
+            setActionDetails={setEditDetails}
           />
         )}
         {content === "avatarForm" && (
           <AvatarForm
             user={user}
             setUser={setUser}
-            setDialogOpen={setResultDialogOpen}
-            setEditResult={setEditResult}
-            setEditDetails={setEditDetails}
+            setActionResultDialogOpen={setEditResultDialogOpen}
+            setActionResult={setEditResult}
+            setActionDetails={setEditDetails}
           />
         )}
       </DialogContent>
@@ -119,32 +108,6 @@ export const SettingsDialog: React.FC<ISettingsDialogProps> = ({
           <span onClick={() => setOpen(false)}>Cancel</span>
         </p>
       </DialogActions>
-      <Dialog id="settingsResultDialog" open={resultDialogOpen}>
-        <DialogContent>
-          {editResult && editDetails ? (
-            <>
-              <p>{editResult}</p>
-              <p>{editDetails}</p>
-              <TextButton
-                className="btn-text btn-fill-light"
-                type="button"
-                text="Close"
-                clickAction={() => {
-                  setEditResult("");
-
-                  setEditDetails("");
-
-                  setResultDialogOpen(false);
-                }}
-              />
-            </>
-          ) : (
-            <div className="circular-progress">
-              <CircularProgress color="success" />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </Dialog>
   );
 };

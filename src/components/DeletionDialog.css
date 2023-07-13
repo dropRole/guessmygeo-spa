@@ -1,20 +1,20 @@
 @media screen and (min-width: 320px) and (max-width: 992px) {
-  #locationDeletionDialog .MuiPaper-root {
+  #deletionDialog .MuiPaper-root {
     width: 350px;
     height: fit-content;
   }
 
-  #locationDeletionDialog .MuiDialogContent-root,
-  #locationDeletionDialog .MuiDialogContentText-root {
+  #deletionDialog .MuiDialogContent-root,
+  #deletionDialog .MuiDialogContentText-root {
     font-weight: 400;
     line-height: 28px;
   }
 
-  #locationDeletionDialog .MuiDialogContentText-root {
+  #deletionDialog .MuiDialogContentText-root {
     font-size: 20px !important;
   }
 
-  #locationDeletionDialog .MuiDialogContent-root > p:nth-child(1) {
+  #deletionDialog .MuiDialogContent-root > p:nth-child(1) {
     font-weight: 400;
     font-size: 34px;
     line-height: 40px;
@@ -24,18 +24,18 @@
 }
 
 @media screen and (min-width: 992px) {
-  #locationDeletionDialog .MuiPaper-root {
+  #deletionDialog .MuiPaper-root {
     width: fit-content;
     height: 250px;
   }
 
-  #locationDeletionDialog .MuiDialogContentText-root {
+  #deletionDialog .MuiDialogContentText-root {
     font-weight: 400;
     font-size: 20px !important;
     line-height: 28px;
   }
 
-  #locationDeletionDialog .MuiDialogContent-root > p:nth-child(1) {
+  #deletionDialog .MuiDialogContent-root > p:nth-child(1) {
     font-weight: 400;
     font-size: 34px;
     line-height: 40px;
@@ -46,16 +46,16 @@
   }
 }
 
-#locationDeletionDialog .MuiDialogContentText-root {
+#deletionDialog .MuiDialogContentText-root {
   text-align: center;
 }
 
-#locationDeletionDialog .MuiDialogActions-root {
+#deletionDialog .MuiDialogActions-root {
   display: flex;
   justify-content: space-between;
   padding: 20px 24px;
 }
 
-#locationDeletionDialog .MuiDialogActions-root > span {
+#deletionDialog .MuiDialogActions-root > span {
   cursor: pointer;
 }

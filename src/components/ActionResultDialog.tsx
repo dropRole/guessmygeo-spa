@@ -1,37 +1,39 @@
 import { CircularProgress, Dialog, DialogContent } from "@mui/material";
 import React, { useEffect } from "react";
 import { TextButton } from "./TextButton";
-import "./ResultDialog.css";
+import "./ActionResultDialog.css";
+import { IActionResultDialogProps } from "./interfaces/dialog";
 
-interface IResultDialogProps {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  result: string;
-  setResult: React.Dispatch<React.SetStateAction<string>>;
-}
-
-export const ResultDialog: React.FC<IResultDialogProps> = ({
+export const ActionResultDialog: React.FC<IActionResultDialogProps> = ({
   open,
   setOpen,
-  result,
-  setResult,
+  actionResult,
+  setActionResult,
+  actionDetails,
+  setActionDetails,
 }) => {
-  useEffect(() => {}, [result])
+  useEffect(() => {}, [actionResult]);
 
   return (
-    <Dialog id="resultDialog" open={open}>
+    <Dialog
+      id={`${actionDetails ? "detailedResultDialog" : "resultDialog"}`}
+      open={open}
+    >
       <DialogContent>
-        {result ? (
+        {actionResult ? (
           <>
-            <p>{result}</p>
+            <p>{actionResult}</p>
+            {actionDetails && <p>{actionDetails}</p>}
             <TextButton
               type="button"
               className="btn-text btn-fill-light"
-              text="CLOSE"
+              text="Close"
               clickAction={() => {
                 setOpen(false);
 
-                setResult("");
+                setActionResult("");
+
+                setActionDetails && setActionDetails("");
               }}
             />
           </>

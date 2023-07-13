@@ -6,6 +6,7 @@ import { StyledComponent } from "@emotion/styled";
 import bestResults from "../assets/icons/best-results.png";
 import worstResults from "../assets/icons/worst-results.png";
 import Tooltip from "@mui/material/Tooltip";
+import { ISwitchButtonProps } from "./interfaces/button";
 
 const CustomSwitch: StyledComponent<SwitchProps> = styled(Switch)(
   ({ theme }) => ({
@@ -54,11 +55,6 @@ const CustomSwitch: StyledComponent<SwitchProps> = styled(Switch)(
     },
   })
 );
-
-interface ISwitchButtonProps {
-  title: string;
-  clickAction: () => void;
-}
 
 export const SwitchButton: React.FC<ISwitchButtonProps> = ({
   title,

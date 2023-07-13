@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Nav } from "../layouts/Nav";
 import { ActionsGrid } from "../containers/ActionsGrid";
-import { ResultDialog } from "../components/ResultDialog";
+import { ActionResultDialog } from "../components/ActionResultDialog";
 import Cookies from "universal-cookie";
 import { Navigate } from "react-router-dom";
 
@@ -16,14 +16,14 @@ export const AdminPanel: React.FC = () => {
     <>
       <Nav />
       <ActionsGrid
-        setResultDialogOpen={setResultDialogOpen}
-        setActionDeletionResult={setActionDeletionResult}
+        setOpen={setResultDialogOpen}
+        setActionResult={setActionDeletionResult}
       />
-      <ResultDialog
+      <ActionResultDialog
         open={resultDialogOpen}
         setOpen={setResultDialogOpen}
-        result={actionDeletionResult}
-        setResult={setActionDeletionResult}
+        actionResult={actionDeletionResult}
+        setActionResult={setActionDeletionResult}
       />
     </>
   ) : (

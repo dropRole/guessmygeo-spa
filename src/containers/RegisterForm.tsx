@@ -12,21 +12,7 @@ import AuthService from "../api/auth.service";
 import { sendEmail } from "../helpers/aws-utility";
 import { render } from "@react-email/render";
 import { RegistrationEmail } from "../components/RegistrationEmail";
-
-interface IRegisterFormProps {
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setResult: React.Dispatch<React.SetStateAction<string>>;
-  setDetails: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface IRegisterFormFields {
-  email: string;
-  name: string;
-  surname: string;
-  username: string;
-  pass: string;
-  confirmPass: string;
-}
+import { IRegisterFormFields, IRegisterFormProps } from "./interfaces/form";
 
 const schema: yup.ObjectSchema<IRegisterFormFields> = yup.object({
   email: yup.string().required().max(320),
@@ -49,9 +35,9 @@ const schema: yup.ObjectSchema<IRegisterFormFields> = yup.object({
 });
 
 export const RegisterForm: React.FC<IRegisterFormProps> = ({
-  setOpen,
-  setResult,
-  setDetails,
+  setActionResultDialogOpen: setRegisterResultDialogOpen,
+  setActionResult: setRegisterResult,
+  setActionDetails: setRegisterDetails,
 }) => {
   const [passVisible, setPassVisible] = useState<boolean>(false);
 
@@ -68,7 +54,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({
   const onSubmit: SubmitHandler<IRegisterFormFields> = async (
     data: IRegisterFormFields
   ) => {
-    setOpen(true);
+    setRegisterResultDialogOpen(true);
 
     const result: string = await authService.register(
       data.username,
@@ -80,9 +66,9 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({
 
     // succeeded
     if (result === "") {
-      setResult("Register succeeded.");
+      setRegisterResult("Register succeeded.");
 
-      setDetails("You may login.");
+      setRegisterDetails && setRegisterDetails("You may login.");
 
       const html: string = render(
         <RegistrationEmail registrated={new Date()} username={data.username} />
@@ -91,9 +77,9 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({
       return sendEmail(html, data.email, "Registration");
     }
 
-    setResult("Register failed.");
+    setRegisterResult("Register failed.");
 
-    setDetails(result);
+    setRegisterDetails && setRegisterDetails(result);
   };
 
   const navigate: NavigateFunction = useNavigate();

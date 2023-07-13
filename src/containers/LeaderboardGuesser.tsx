@@ -1,34 +1,25 @@
 import React, { useEffect, useState } from "react";
 import defaultAvatar from "../assets/icons/default-avatar.png";
-import AuthService from "../api/auth.service";
-import { IGuesser } from "./GuessingLeaderboard";
 import "./LeaderboardGuesser.css";
 import { NavigateFunction, useNavigate } from "react-router-dom";
-
-interface ILeaderboardGuesserProps {
-  guesser: IGuesser;
-  personalGuess: boolean;
-}
+import { streamUserAvatar } from "../helpers/auth-utility";
+import { ILeaderboardGuesserProps } from "./interfaces/leaderboard";
 
 export const LeaderboardGuesser: React.FC<ILeaderboardGuesserProps> = ({
   guesser,
   personalGuess,
 }) => {
-  const [avatar, setAvatar] = useState<Blob | string>(defaultAvatar);
-
-  const authService: AuthService = new AuthService();
+  const [guesserAvatar, setGuesserAvatar] = useState<Blob | string>(
+    defaultAvatar
+  );
 
   useEffect(() => {
-    const streamAvatar: () => void = async () => {
-      const avatar: Blob = await authService.streamAvatar(
-        guesser.avatar as string
+    guesser.avatar !== null &&
+      streamUserAvatar<Blob | string>(
+        guesser.avatar as string,
+        undefined,
+        setGuesserAvatar
       );
-
-      setAvatar(avatar);
-    };
-
-    // user uploaded avatar
-    if (guesser.avatar !== null) streamAvatar();
   }, [guesser]);
 
   const navigate: NavigateFunction = useNavigate();
@@ -46,7 +37,11 @@ export const LeaderboardGuesser: React.FC<ILeaderboardGuesserProps> = ({
         {guesser.placement}
       </span>
       <img
-        src={typeof avatar === "string" ? avatar : URL.createObjectURL(avatar)}
+        src={
+          typeof guesserAvatar === "string"
+            ? guesserAvatar
+            : URL.createObjectURL(guesserAvatar)
+        }
         alt={`${guesser.name} ${guesser.surname}`}
       />
       <p>

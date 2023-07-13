@@ -1,5 +1,5 @@
-import { IGuess } from "../interfaces/guess.interface";
-import { ILocation } from "../interfaces/location.interface";
+import { IGuess } from "./interfaces/guess.interface";
+import ILocation from "./interfaces/location.interface";
 import BaseHTTPService from "./base-http.service";
 
 export default class LocationsService extends BaseHTTPService {
@@ -12,8 +12,11 @@ export default class LocationsService extends BaseHTTPService {
   async guessLocation(
     id: string,
     result: string
-  ): Promise<{ guessed: boolean; message: string }> {
-    return await this.post(`locations/guess/${id}`, { result });
+  ): Promise<{ [key: string]: string } | string> {
+    return await this.post<{ [key: string]: string } | string>(
+      `locations/guess/${id}`,
+      { result }
+    );
   }
 
   async selectLocations(
@@ -25,15 +28,15 @@ export default class LocationsService extends BaseHTTPService {
     );
   }
 
-  async selectLocation(id: string): Promise<ILocation> {
+  async selectLocation(id: string): Promise<ILocation | string> {
     return await this.get<ILocation>(`locations/${id}`);
   }
 
-  async guessedLocation(id: string): Promise<string | false> {
-    return this.get<string | false>(`locations/${id}/guessed-on`);
+  async guessedLocation(id: string): Promise<IGuess | false | string> {
+    return this.get<IGuess | false | string>(`locations/${id}/guessed-on`);
   }
 
-  async streamImage(filename: string): Promise<Blob> {
+  async streamImage(filename: string): Promise<Blob | string> {
     return await this.get<Blob>(`locations/image/${filename}`, {
       responseType: "blob",
       timeout: 30000,

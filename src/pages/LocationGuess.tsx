@@ -1,31 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { IUser } from "../interfaces/user.interface";
+import IUser from "../api/interfaces/user.interface";
 import defaultAvatar from "../assets/icons/default-avatar.png";
 import { Nav } from "../layouts/Nav";
 import { Footer } from "../layouts/Footer";
-import LocationsService from "../api/locations.service";
-import { ILocation } from "../interfaces/location.interface";
-import { IGuess } from "../interfaces/guess.interface";
+import ILocation from "../api/interfaces/location.interface";
+import { IGuess } from "../api/interfaces/guess.interface";
 import { GuessingForm } from "../containers/GuessingForm";
 import { GuessingLeaderboard } from "../containers/GuessingLeaderboard";
 import "./LocationGuess.css";
-import AuthService from "../api/auth.service";
 import { SettingsDialog } from "../containers/SettingsDialog";
 import { LocationDialog } from "../containers/LocationDialog";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { ResultDialog } from "../components/ResultDialog";
+import { ActionResultDialog } from "../components/ActionResultDialog";
 import Cookies from "universal-cookie";
+import { getUserInfo } from "../helpers/auth-utility";
+import { getLocation } from "../helpers/locations-utility";
 
 export const LocationGuess: React.FC = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
 
-  const [location, setLocation] = useState<ILocation | undefined>(undefined);
+  const [location, setLocation] = useState<ILocation | undefined>();
 
-  const [locationGuess, setLocationGuess] = useState<IGuess | undefined>(
-    undefined
-  );
-
-  const [locationGuessed, setLocationGuessed] = useState<boolean>(false);
+  const [locationGuess, setLocationGuess] = useState<IGuess | undefined>();
 
   const [guessResultDialogOpen, setGuessResultDialogOpen] =
     useState<boolean>(false);
@@ -42,77 +38,31 @@ export const LocationGuess: React.FC = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const authService: AuthService = new AuthService();
-
-  const locationsService: LocationsService = new LocationsService();
-
   useEffect(() => {
-    const getUserInfo: () => void = async () => {
-      const info: IUser | string = await authService.selectInfo();
-
-      // user uploaded avatar
-      if ((info as IUser).avatar !== null) {
-        const avatar: Blob = await authService.streamAvatar(
-          (info as IUser).avatar as string
-        );
-
-        return setUser({ ...(info as IUser), avatar });
-      }
-
-      setUser({ ...(info as IUser), avatar: defaultAvatar });
-    };
-
-    getUserInfo();
-
-    const selectLocation: () => void = async () => {
-      const location: ILocation | string =
-        await locationsService.selectLocation(
-          searchParams.get("idLocations") as string
-        );
-
-      // fetch succeeded
-      if (typeof location !== "string")
-        setLocation({ ...(location as ILocation) });
-    };
-
-    const selectGuess: (id: string) => void = async (id: string) => {
-      const guess: IGuess | string = await locationsService.selectGuess(id);
-
-      // fetch succeeded
-      if (typeof guess !== "string") setLocationGuess(guess);
-    };
-
-    const guessedLocation: () => void = async () => {
-      const guessed: string | false = await locationsService.guessedLocation(
+    getUserInfo(setUser);
+    // location was guessed
+    if (locationGuess) {
+      const newURLParams: URLSearchParams = new URLSearchParams();
+      newURLParams.append(
+        "idLocations",
         searchParams.get("idLocations") as string
       );
+      newURLParams.append("idGuesses", locationGuess.id);
 
-      // location was guessed
-      if (guessed) {
-        selectGuess(guessed);
+      setSearchParams(newURLParams);
 
-        const newURLParams: URLSearchParams = new URLSearchParams();
-        newURLParams.append(
-          "idLocations",
-          searchParams.get("idLocations") as string
-        );
-        newURLParams.append("idGuesses", guessed as string);
-
-        setSearchParams(newURLParams);
-      }
-    };
+      return;
+    }
 
     // if location id was mediated via URL
-    if (searchParams.get("idLocations")) {
-      selectLocation();
+    if (searchParams.get("idLocations"))
+      getLocation(searchParams.get("idLocations") as string, setLocation);
+  }, [locationGuess]);
 
-      guessedLocation();
-    }
-  }, []);
+  const cookies: Cookies = new Cookies();
 
-  const cookies: Cookies = new Cookies()
-
-  return !cookies.get("guessmygeo_privilege") && cookies.get("guessmygeo_token") ? (
+  return !cookies.get("guessmygeo_privilege") &&
+    cookies.get("guessmygeo_token") ? (
     <>
       <Nav
         user={user}
@@ -123,31 +73,33 @@ export const LocationGuess: React.FC = () => {
       <div id="guessingLayout">
         <GuessingForm
           location={location}
-          guess={locationGuess}
-          setGuessResultDialogOpen={setGuessResultDialogOpen}
-          setGuessResult={setGuessResult}
-          locationGuessed={locationGuessed}
-          setLocationGuessed={setLocationGuessed}
+          idGuesses={searchParams.get("idGuesses") as string}
+          locationGuess={locationGuess}
+          setLocationGuess={setLocationGuess}
+          setActionResultDialogOpen={setGuessResultDialogOpen}
+          setActionResult={setGuessResult}
         />
         {location && (
           <GuessingLeaderboard
             location={location}
             user={user}
-            locationGuessed={locationGuessed}
+            locationGuessed={locationGuess ? true : false}
           />
         )}
       </div>
-      <ResultDialog
+      <ActionResultDialog
         open={guessResultDialogOpen}
         setOpen={setGuessResultDialogOpen}
-        result={guessResult}
-        setResult={setGuessResult}
+        actionResult={guessResult}
+        setActionResult={setGuessResult}
       />
       <SettingsDialog
         open={settingsDialogOpen}
         setOpen={setSettingsDialogOpen}
         user={user}
         setUser={setUser}
+        setActionResultDialogOpen={setGuessResultDialogOpen}
+        setActionResult={setGuessResult}
       />
       <LocationDialog
         open={locationDialogOpen}
@@ -156,5 +108,7 @@ export const LocationGuess: React.FC = () => {
       />
       <Footer />
     </>
-  ) : <Navigate to="/panel" />;
+  ) : (
+    <Navigate to="/panel" />
+  );
 };

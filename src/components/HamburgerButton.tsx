@@ -1,11 +1,7 @@
 import React from "react";
 import { recordClickAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
-
-interface IHamburgerButtonProps {
-  className: string;
-  clickAction: () => void;
-}
+import { IHamburgerButtonProps } from "./interfaces/button";
 
 export const HamburgerButton: React.FC<IHamburgerButtonProps> = ({
   className,
@@ -19,7 +15,7 @@ export const HamburgerButton: React.FC<IHamburgerButtonProps> = ({
       onClick={async () => {
         clickAction();
 
-        // logged in user
+        // authenticated user without any privileges
         if (
           cookies.get("guessmygeo_token") &&
           !cookies.get("guessmygeo_privilege")

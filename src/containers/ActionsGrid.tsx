@@ -1,23 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { IAction } from "../interfaces/action.interface";
+import IAction from "../api/interfaces/action.interface";
 import ActionsService from "../api/actions.service";
 import { TextField } from "@mui/material";
 import { TextButton } from "../components/TextButton";
 import "./ActionsGrid.css";
-
-interface IActionsGridProps {
-  setResultDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setActionDeletionResult: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface IGridAction extends Omit<IAction, "user"> {
-  user: string;
-}
+import { IActionsGridProps, IGridAction } from "./interfaces/data-grid";
 
 export const ActionsGrid: React.FC<IActionsGridProps> = ({
-  setResultDialogOpen,
-  setActionDeletionResult,
+  setOpen: setDeletionResultDialogOpen,
+  setActionResult: setDeletionResult,
 }) => {
   const [actionPerformer, setActionPerformer] = useState<string>("");
 
@@ -25,32 +17,33 @@ export const ActionsGrid: React.FC<IActionsGridProps> = ({
 
   const [actionsToDelete, setActionsToDelete] = useState<string[]>([]);
 
-  const [limit, setLimit] = useState<number>(100);
+  const [loadLimit, setLoadLimit] = useState<number>(100);
 
-  const [page, setPage] = useState<number>(0);
+  const [loadPage, setLoadPage] = useState<number>(0);
 
-  const [pageSize, setPageSize] = useState<number>(25);
+  const [loadPageSize, setLoadPageSize] = useState<number>(25);
 
   const actionsService: ActionsService = new ActionsService();
 
+  const selectActions: () => void = async () => {
+    const userActions: IAction[] | string = await actionsService.selectActions(
+      loadLimit,
+      actionPerformer
+    );
+
+    // actions retrieved
+    if (typeof userActions !== "string")
+      setGridActions(
+        userActions.map((userAction) => ({
+          ...userAction,
+          user: userAction.user.username,
+        }))
+      );
+  };
+
   useEffect(() => {
-    const selectActions: () => void = async () => {
-      const userActions: IAction[] | string =
-        await actionsService.selectActions(limit, actionPerformer);
-
-      // actions retrieved
-      if (typeof userActions !== "string") {
-        setGridActions(
-          userActions.map((userAction) => ({
-            ...userAction,
-            user: userAction.user.username,
-          }))
-        );
-      }
-    };
-
     selectActions();
-  }, [limit]);
+  }, [loadLimit]);
 
   const columns: GridColDef[] = [
     {
@@ -72,6 +65,74 @@ export const ActionsGrid: React.FC<IActionsGridProps> = ({
     { field: "user", headerName: "User", flex: 1, minWidth: 100 },
   ];
 
+  const filterUsersActions: (e: any) => void = async (e: any) => {
+    setActionPerformer(e.target.value);
+
+    setLoadLimit(100);
+
+    setLoadPage(0);
+
+    const userActions: IAction[] | string = await actionsService.selectActions(
+      loadLimit,
+      e.target.value
+    );
+
+    // actions retrieved
+    if (typeof userActions !== "string") {
+      setGridActions(
+        userActions.map((userAction) => ({
+          ...userAction,
+          user: userAction.user.username,
+        }))
+      );
+    }
+  };
+
+  const loadActions: (params: { [key: string]: any }) => void = async (params: {
+    [key: string]: any;
+  }) => {
+    const {
+      pagination: {
+        paginationModel: { page: currentPage, pageSize: currentPageSize },
+      },
+    } = params;
+
+    // next page
+    if (currentPage > loadPage) {
+      setLoadPage(loadPage);
+
+      setLoadPageSize(currentPage * currentPageSize);
+
+      const pageSizeAux = loadPageSize + currentPageSize;
+
+      // top page limit met
+      if (pageSizeAux === loadLimit) setLoadLimit(loadLimit + 100);
+    }
+  };
+
+  const deleteAction: () => void = async () => {
+    setDeletionResultDialogOpen(true);
+
+    setDeletionResult("");
+
+    let removedActions = 0;
+
+    actionsToDelete.forEach(async (action) => {
+      const removed: boolean | string = await actionsService.removeAction(action);
+
+      // action removed
+      if (typeof removed === "boolean" && removed) {
+        removedActions++;
+
+        setDeletionResult(
+          `Deleted ${removedActions} of ${actionsToDelete.length}`
+        );
+      }
+    });
+
+    setLoadLimit(loadLimit + actionsToDelete.length);
+  };
+
   return (
     <>
       <div id="actionPerformer">
@@ -80,26 +141,7 @@ export const ActionsGrid: React.FC<IActionsGridProps> = ({
           label="Username"
           variant="outlined"
           color="success"
-          onChange={async (e) => {
-            setActionPerformer(e.target.value);
-
-            setLimit(100);
-
-            setPage(0);
-
-            const userActions: IAction[] | string =
-              await actionsService.selectActions(limit, e.target.value);
-
-            // actions retrieved
-            if (typeof userActions !== "string") {
-              setGridActions(
-                userActions.map((userAction) => ({
-                  ...userAction,
-                  user: userAction.user.username,
-                }))
-              );
-            }
-          }}
+          onChange={filterUsersActions}
         />
       </div>
       <DataGrid
@@ -116,55 +158,14 @@ export const ActionsGrid: React.FC<IActionsGridProps> = ({
         onRowSelectionModelChange={(model) =>
           setActionsToDelete(model as string[])
         }
-        onStateChange={(params) => {
-          const {
-            pagination: {
-              paginationModel: { page: currentPage, pageSize: currentPageSize },
-            },
-          } = params;
-          
-          // next page
-          if (currentPage > page) {
-            setPage(page);
-
-            setPageSize(currentPage * currentPageSize);
-
-            const pageSizeAux = pageSize + currentPageSize;
-
-            // top page limit met
-            if (pageSizeAux === limit) setLimit(limit + 100);
-          }
-        }}
+        onStateChange={(params) => loadActions(params)}
       />
       {actionsToDelete.length ? (
         <TextButton
           type="button"
           className="btn-text btn-fill-dark action-del-btn"
           text="DELETE"
-          clickAction={async () => {
-            setActionDeletionResult("");
-
-            setResultDialogOpen(true);
-
-            let removedActions = 0;
-
-            actionsToDelete.forEach(async (action) => {
-              const removed: boolean = await actionsService.removeAction(
-                action
-              );
-
-              // action removed
-              if (removed) {
-                removedActions++;
-
-                setActionDeletionResult(
-                  `Deleted ${removedActions} of ${actionsToDelete.length}`
-                );
-              }
-            });
-
-            setLimit(limit + actionsToDelete.length);
-          }}
+          clickAction={deleteAction}
         />
       ) : (
         <></>

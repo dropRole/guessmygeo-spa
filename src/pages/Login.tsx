@@ -13,41 +13,42 @@ import Cookies from "universal-cookie";
 import { Navigate } from "react-router-dom";
 
 export const Login: React.FC = () => {
-  const [form, setForm] = useState<"login" | "reset">("login");
+  const [type, setType] = useState<"login" | "reset">("login");
 
   const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
 
-  const [loginResult, setLoginResult] = useState<string>("");
+  const [result, setResult] = useState<string>("");
 
-  const [loginDetails, setLoginDetails] = useState<string>("");
+  const [resultDetails, setResultDetails] = useState<string>("");
 
   const cookies: Cookies = new Cookies();
+
+  const loginIntro = "Welcome back to GuessMyGeo! We're glad you're back.";
+
+  const resetIntro =
+    "Reset you're password in no time! Provide us with a valid username.";
 
   return !cookies.get("guessmygeo_privilege") &&
     !cookies.get("guessmygeo_token") ? (
     <div id="loginSectionDivider">
       <div>
         <Nav />
-        <p id="loginIntro">{form === "login" ? "Login" : "Reset"}</p>
-        <p>
-          {form === "login"
-            ? "Welcome back to GuessMyGeo! We're glad you're back."
-            : "Reset you're password in no time! Provide us with a valid username."}
-        </p>
+        <p id="loginIntro">{type === "login" ? "Login" : "Reset"}</p>
+        <p>{type === "login" ? loginIntro : resetIntro}</p>
         <img src={defaultAvatar} alt="default avatar" />
-        {form === "login" ? (
+        {type === "login" ? (
           <LoginForm
-            setForm={setForm}
-            setOpen={setResultDialogOpen}
-            setResult={setLoginResult}
-            setDetails={setLoginDetails}
+            setFormType={setType}
+            setActionResultDialogOpen={setResultDialogOpen}
+            setActionResult={setResult}
+            setActionDetails={setResultDetails}
           />
         ) : (
           <PasswordClaimForm
-            setForm={setForm}
-            setOpen={setResultDialogOpen}
-            setResult={setLoginResult}
-            setDetails={setLoginDetails}
+            setFormType={setType}
+            setActionResultDialogOpen={setResultDialogOpen}
+            setActionResult={setResult}
+            setActionDetails={setResultDetails}
           />
         )}
       </div>
@@ -64,10 +65,10 @@ export const Login: React.FC = () => {
       </div>
       <Dialog id="loginResultDialog" open={resultDialogOpen}>
         <DialogContent>
-          {loginResult ? (
+          {result ? (
             <>
-              <p>{loginResult}</p>
-              <p>{loginDetails}</p>
+              <p>{result}</p>
+              <p>{resultDetails}</p>
               <TextButton
                 className="btn-text btn-fill-light"
                 type="button"
@@ -75,9 +76,9 @@ export const Login: React.FC = () => {
                 clickAction={() => {
                   setResultDialogOpen(false);
 
-                  setLoginResult("");
+                  setResult("");
 
-                  setLoginDetails("");
+                  setResultDetails("");
                 }}
               />
             </>

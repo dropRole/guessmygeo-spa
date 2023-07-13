@@ -1,40 +1,23 @@
 import React, { useState, useEffect } from "react";
 import "./Card.css";
-import { IGuess } from "../interfaces/guess.interface";
-import LocationsService from "../api/locations.service";
 import { NavigateFunction, useNavigate } from "react-router-dom";
-
-interface IGuessCardProps {
-  guess: IGuess;
-}
+import { streamLocationImage } from "../helpers/locations-utility";
+import { IGuessCardProps } from "./interfaces/card";
 
 export const GuessCard: React.FC<IGuessCardProps> = ({ guess }) => {
   const [locationImage, setLocationImage] = useState<Blob>(new Blob());
 
-  const locationsService: LocationsService = new LocationsService();
+  useEffect(() => {
+    streamLocationImage(guess.location.image as string, setLocationImage);
+  }, []);
 
   const navigate: NavigateFunction = useNavigate();
-
-  useEffect(() => {
-    const getImage: () => void = async () => {
-      const result: Blob = await locationsService.streamImage(
-        guess.location.image as string
-      );
-
-      // streamed location image
-      if (result instanceof Blob) setLocationImage(result);
-    };
-
-    getImage();
-  }, []);
 
   return (
     <div
       className="card"
       onClick={() =>
-        navigate(
-          `/location-guess?idLocations=${guess.location.id}`
-        )
+        navigate(`/location-guess?idLocations=${guess.location.id}`)
       }
     >
       <img

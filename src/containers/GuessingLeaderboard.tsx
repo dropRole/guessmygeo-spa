@@ -1,23 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ILocation } from "../interfaces/location.interface";
-import { IUser } from "../interfaces/user.interface";
+import IUser from "../api/interfaces/user.interface";
 import LocationsService from "../api/locations.service";
-import { IGuess } from "../interfaces/guess.interface";
+import { IGuess, IGuesser } from "../api/interfaces/guess.interface";
 import "./GuessingLeaderboard.css";
 import { LeaderboardGuesser } from "../containers/LeaderboardGuesser";
 import { TextButton } from "../components/TextButton";
-
-interface IGuessingLeaderboardProps {
-  location: ILocation;
-  user: IUser;
-  locationGuessed: boolean;
-}
-
-export interface IGuesser extends IUser {
-  result: number;
-  guessedAt: Date;
-  placement: number;
-}
+import { IGuessingLeaderboardProps } from "./interfaces/leaderboard";
 
 export const GuessingLeaderboard: React.FC<IGuessingLeaderboardProps> = ({
   location,
@@ -26,53 +14,47 @@ export const GuessingLeaderboard: React.FC<IGuessingLeaderboardProps> = ({
 }) => {
   const [locationGuessers, setLocationGuessers] = useState<IGuesser[]>([]);
 
-  const [limit, setLimit] = useState<number>(10);
+  const { current: guessersRef } = useRef<IUser[]>(locationGuessers);
 
-  const [loadMore, setLoadMore] = useState<boolean>(true);
+  const [loadLimit, setLoadLimit] = useState<number>(10);
 
   const [fetchError, setFetchError] = useState<string>("");
 
-  const { current: guessersRef } = useRef<IUser[]>(locationGuessers);
+  const locationsService: LocationsService = new LocationsService();
 
-const locationsService: LocationsService = new LocationsService();
+  const getLocationGuessers: () => void = async () => {
+    const guesses: IGuess[] | string = await locationsService.selectGuesses(
+      loadLimit,
+      location.id,
+      undefined,
+      1
+    );
+
+    // fetch succeeded
+    if (typeof guesses !== "string") {
+      let guesserCounter = 0;
+
+      setLocationGuessers([
+        ...guesses.map((guess) => {
+          const guesser: IGuesser = {
+            ...guess.user,
+            result: guess.result,
+            guessedAt: guess.guessedAt,
+            placement: ++guesserCounter,
+          };
+
+          return guesser;
+        }),
+      ]);
+
+      return;
+    }
+    setFetchError(guesses);
+  };
 
   useEffect(() => {
-    const getLocationGuessers: () => void = async () => {
-      const guesses: IGuess[] | string = await locationsService.selectGuesses(
-        limit,
-        location.id,
-        undefined,
-        1
-      );
-
-      // fetch succeeded
-      if (typeof guesses !== "string") {
-        let guesserCounter = 0;
-
-        setLocationGuessers([
-          ...guesses.map((guess) => {
-            const guesser: IGuesser = {
-              ...guess.user,
-              result: guess.result,
-              guessedAt: guess.guessedAt,
-              placement: ++guesserCounter,
-            };
-
-            return guesser;
-          }),
-        ]);
-
-        // limit exceeded
-        if (limit > guesses.length) setLoadMore(false);
-
-        return;
-      }
-
-      setFetchError(guesses);
-    };
-
     getLocationGuessers();
-  }, [guessersRef, limit, fetchError, locationGuessed]);
+  }, [guessersRef, loadLimit, fetchError, locationGuessed]);
 
   return (
     <div id="guessingLeaderboard">
@@ -81,15 +63,15 @@ const locationsService: LocationsService = new LocationsService();
         <LeaderboardGuesser
           key={guesser.username}
           guesser={guesser}
-          personalGuess={guesser.username === user.username && true }
+          personalGuess={guesser.username === user.username && true}
         />
       ))}
-      {loadMore && (
+      {loadLimit < locationGuessers.length && (
         <TextButton
           type="button"
           className="btn-text btn-outline"
           text="LOAD MORE"
-          clickAction={() => setLimit(limit + 1)}
+          clickAction={() => setLoadLimit(loadLimit + 1)}
         />
       )}
     </div>

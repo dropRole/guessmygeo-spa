@@ -1,4 +1,4 @@
-import { IUser } from "../interfaces/user.interface";
+import IUser from "./interfaces/user.interface";
 import BaseHTTPService from "./base-http.service";
 
 export default class AuthService extends BaseHTTPService {
@@ -9,7 +9,7 @@ export default class AuthService extends BaseHTTPService {
     surname: string,
     email: string
   ): Promise<string> {
-    return await this.post("auth/register", {
+    return await this.post<string>("auth/register", {
       username,
       pass,
       name,
@@ -21,8 +21,8 @@ export default class AuthService extends BaseHTTPService {
   async login(
     username: string,
     pass: string
-  ): Promise<{ [key: string]: string }> {
-    return await this.post<{ [key: string]: string }>("auth/login", {
+  ): Promise<{ [key: string]: string } | string> {
+    return await this.post<{ [key: string]: string } | string>("auth/login", {
       username,
       pass,
     });
@@ -30,16 +30,18 @@ export default class AuthService extends BaseHTTPService {
 
   async signPassResetJWT(
     username: string
-  ): Promise<{ email: string; jwt: string } | string> {
-    return await this.get(`auth/${username}/token/pass-reset`);
+  ): Promise<{ [key: string]: string } | string> {
+    return await this.get<{ [key: string]: string } | string>(
+      `auth/${username}/token/pass-reset`
+    );
   }
 
   async selectInfo(): Promise<IUser | string> {
-    return await this.get<IUser>("auth/me/info");
+    return await this.get<IUser | string>("auth/me/info");
   }
 
-  async streamAvatar(avatar: string): Promise<Blob> {
-    return await this.get(`auth/me/avatar?avatar=${avatar}`, {
+  async streamAvatar(avatar: string): Promise<Blob | string> {
+    return await this.get<Blob | string>(`auth/me/avatar?avatar=${avatar}`, {
       responseType: "blob",
     });
   }
@@ -50,7 +52,12 @@ export default class AuthService extends BaseHTTPService {
     surname: string,
     email: string
   ): Promise<{ jwt: string } | string> {
-    return await this.patch("auth/me/info", { username, name, surname, email });
+    return await this.patch<{ jwt: string } | string>("auth/me/info", {
+      username,
+      name,
+      surname,
+      email,
+    });
   }
 
   async changePass(
@@ -60,22 +67,22 @@ export default class AuthService extends BaseHTTPService {
   ): Promise<string> {
     // password reset
     if (pass === undefined && token !== "")
-      return await this.patch(
+      return await this.patch<string>(
         "auth/me/pass",
         { pass, newPass },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-    return await this.patch("auth/me/pass", { pass, newPass });
+    return await this.patch<string>("auth/me/pass", { pass, newPass });
   }
 
   async uploadAvatar(formData: FormData): Promise<string> {
-    return await this.patch("auth/me/avatar", formData, {
+    return await this.patch<string>("auth/me/avatar", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   }
 
   async removeAvatar(): Promise<string> {
-    return await this.delete("auth/me/avatar");
+    return await this.delete<string>("auth/me/avatar");
   }
 }

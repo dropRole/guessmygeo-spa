@@ -4,12 +4,7 @@ import { Head } from "@react-email/head";
 import { Html } from "@react-email/html";
 import { Section } from "@react-email/section";
 import { Hr } from "@react-email/hr";
-
-interface IPasswordResetEmailProps {
-  username: string;
-  url: string;
-  requested: Date;
-}
+import { IPasswordResetEmailProps } from "./interfaces/email";
 
 export const PasswordResetEmail: React.FC<IPasswordResetEmailProps> = ({
   username,

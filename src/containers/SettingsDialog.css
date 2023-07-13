@@ -38,17 +38,6 @@
     justify-content: space-between;
     width: 100%;
   }
-
-  #settingsResultDialog .MuiPaper-root {
-    width: 350px;
-    height: 200px;
-  }
-
-  #settingsResultDialog .MuiDialogContent-root > p:nth-child(1) {
-    font-weight: 400;
-    font-size: 24px;
-    line-height: 28px;
-  }
 }
 
 @media screen and (min-width: 992px) {
@@ -95,21 +84,6 @@
   #settingsDialog div#settingsActions > p > button {
     flex-basis: 20%;
   }
-
-  #settingsResultDialog .MuiPaper-root {
-    width: 600px;
-    height: 200px;
-  }
-
-  #settingsResultDialog .MuiDialogContent-root > p:nth-child(1) {
-    font-weight: 400;
-    font-size: 34px;
-    line-height: 40px;
-
-    letter-spacing: 0.25px;
-
-    margin: 15px 0 20px 0;
-  }
 }
 
 #settingsDialog .MuiFormControl-root::after {
@@ -142,12 +116,4 @@
 
 #settingsDialog div#settingsActions > p > span {
   cursor: pointer;
-}
-
-#settingsResultDialog .circular-progress {
-  position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  width: fit-content;
 }

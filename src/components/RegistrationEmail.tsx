@@ -3,11 +3,7 @@ import { Head } from "@react-email/head";
 import { Html } from "@react-email/html";
 import { Section } from "@react-email/section";
 import { Hr } from "@react-email/hr";
-
-interface IRegistrationEmailProps {
-  username: string;
-  registrated: Date;
-}
+import { IRegistrationEmailProps } from "./interfaces/email";
 
 export const RegistrationEmail: React.FC<IRegistrationEmailProps> = ({
   username,

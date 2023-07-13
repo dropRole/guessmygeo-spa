@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Nav } from "../layouts/Nav";
 import { PasswordResetForm } from "../containers/PasswordResetForm";
 import "./PasswordReset.css";
-import { ResultDialog } from "../components/ResultDialog";
+import { ActionResultDialog } from "../components/ActionResultDialog";
 
 export const PasswordReset: React.FC = () => {
   const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
@@ -15,14 +15,14 @@ export const PasswordReset: React.FC = () => {
       <p id="passResetIntro">Reset password</p>
       <p>Input valid password and confirm it.</p>
       <PasswordResetForm
-        setOpen={setResultDialogOpen}
-        setResult={setResetResult}
+        setActionResultDialogOpen={setResultDialogOpen}
+        setActionResult={setResetResult}
       />
-      <ResultDialog
+      <ActionResultDialog
         open={resultDialogOpen}
         setOpen={setResultDialogOpen}
-        result={resetResult}
-        setResult={setResetResult}
+        actionResult={resetResult}
+        setActionResult={setResetResult}
       />
     </>
   );

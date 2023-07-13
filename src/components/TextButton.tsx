@@ -1,14 +1,7 @@
 import React from "react";
 import { recordClickAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
-
-interface ITextButtonProps {
-  type: "button" | "submit" | "reset";
-  className: string;
-  text: string;
-  form?: string;
-  clickAction: () => void;
-}
+import { ITextButtonProps } from "./interfaces/button";
 
 export const TextButton: React.FC<ITextButtonProps> = ({
   type,
@@ -27,7 +20,7 @@ export const TextButton: React.FC<ITextButtonProps> = ({
       onClick={async () => {
         clickAction();
 
-        // logged in user
+        // authenticated user without any privileges
         if (
           cookies.get("guessmygeo_token") &&
           !cookies.get("guessmygeo_privilege")

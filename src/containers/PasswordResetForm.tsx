@@ -10,18 +10,12 @@ import unvisible from "../assets/icons/unvisible.png";
 import "./PasswordResetForm.css";
 import { TextButton } from "../components/TextButton";
 import { NavigateFunction, useNavigate } from "react-router-dom";
+import {
+  IPassResetFormFields,
+  IPasswordResetFormProps,
+} from "./interfaces/form";
 
-interface IPasswordResetFormProps {
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setResult: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface IFormFields {
-  newPass: string;
-  confirmPass: string;
-}
-
-const schema: yup.ObjectSchema<IFormFields> = yup.object({
+const schema: yup.ObjectSchema<IPassResetFormFields> = yup.object({
   newPass: yup
     .string()
     .required()
@@ -38,8 +32,8 @@ const schema: yup.ObjectSchema<IFormFields> = yup.object({
 });
 
 export const PasswordResetForm: React.FC<IPasswordResetFormProps> = ({
-  setOpen,
-  setResult,
+  setActionResultDialogOpen: setResetResultDialogOpen,
+  setActionResult: setResetResult,
 }) => {
   const [newPassVisible, setNewPassVisible] = useState<boolean>(false);
 
@@ -57,10 +51,10 @@ export const PasswordResetForm: React.FC<IPasswordResetFormProps> = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<IFormFields>({ resolver: yupResolver(schema) });
+  } = useForm<IPassResetFormFields>({ resolver: yupResolver(schema) });
 
-  const onSubmit: SubmitHandler<IFormFields> = async (data) => {
-    setOpen(true);
+  const onSubmit: SubmitHandler<IPassResetFormFields> = async (data) => {
+    setResetResultDialogOpen(true);
 
     const result: string = await authService.changePass(
       undefined,
@@ -70,12 +64,12 @@ export const PasswordResetForm: React.FC<IPasswordResetFormProps> = ({
 
     // succeeded
     if (result === "") {
-      setResult("Password is reset.");
+      setResetResult("Password is reset.");
 
       return setTimeout(() => navigate("/login"), 2000);
     }
 
-    setResult("Password change failed.");
+    setResetResult("Password change failed.");
   };
 
   return (

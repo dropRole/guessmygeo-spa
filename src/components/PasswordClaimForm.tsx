@@ -9,27 +9,17 @@ import { render } from "@react-email/render";
 import { PasswordResetEmail } from "./PasswordResetEmail";
 import AuthService from "../api/auth.service";
 import { sendEmail } from "../helpers/aws-utility";
-
-interface IPasswordClaimFormProps {
-  setForm: React.Dispatch<React.SetStateAction<"login" | "reset">>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setResult: React.Dispatch<React.SetStateAction<string>>;
-  setDetails: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface IPasswordClaimFormFields {
-  username: string;
-}
+import { IPasswordClaimFormFields, IPasswordClaimFormProps } from "./interfaces/form";
 
 const schema: yup.ObjectSchema<IPasswordClaimFormFields> = yup.object({
   username: yup.string().required().max(320),
 });
 
 export const PasswordClaimForm: React.FC<IPasswordClaimFormProps> = ({
-  setForm,
-  setOpen,
-  setResult,
-  setDetails,
+  setFormType,
+  setActionResultDialogOpen: setClaimResultDialogOpen,
+  setActionResult: setClaimResult,
+  setActionDetails: setClaimDetails,
 }) => {
   const {
     register,
@@ -42,16 +32,16 @@ export const PasswordClaimForm: React.FC<IPasswordClaimFormProps> = ({
   const onSubmit: SubmitHandler<IPasswordClaimFormFields> = async (
     data: IPasswordClaimFormFields
   ) => {
-    setOpen(true);
+    setClaimResultDialogOpen(true);
 
-    const signResult: { email: string; jwt: string } | string =
+    const signResult: { [key: string]: string } | string =
       await authService.signPassResetJWT(data.username);
 
     // failed
     if (typeof signResult === "string") {
-      setResult("An error occured.");
+      setClaimResult("An error occured.");
 
-      return setDetails(signResult);
+      return setClaimDetails && setClaimDetails(signResult);
     }
 
     const html: string = render(
@@ -73,14 +63,14 @@ export const PasswordClaimForm: React.FC<IPasswordClaimFormProps> = ({
 
     // failed
     if (sentResult !== "") {
-      setResult("An error occured.");
+      setClaimResult("An error occured.");
 
-      return setDetails(sentResult);
+      return setClaimDetails && setClaimDetails(sentResult);
     }
 
-    setResult("Reset email sent.");
+    setClaimResult("Reset email sent.");
 
-    setDetails(`The reset email was sent on the ${signResult.email} address.`);
+    setClaimDetails && setClaimDetails(`The reset email was sent on the ${signResult.email} address.`);
   };
 
   return (
@@ -104,7 +94,7 @@ export const PasswordClaimForm: React.FC<IPasswordClaimFormProps> = ({
       />
       <p className="display-flex justify-content-between">
         <span>Remembered your password?</span>
-        <span onClick={() => setForm("login")}>Login</span>
+        <span onClick={() => setFormType("login")}>Login</span>
       </p>
     </form>
   );

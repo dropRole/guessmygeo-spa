@@ -7,7 +7,6 @@ import { HamburgerButton } from "../components/HamburgerButton";
 import { AddButton } from "../components/AddButton";
 import chevron from "../assets/icons/chevron.png";
 import lightChevron from "../assets/icons/light-chevron.png";
-import { IUser } from "../interfaces/user.interface";
 import {
   Location,
   useLocation,
@@ -16,13 +15,7 @@ import {
 } from "react-router-dom";
 import { recordScrollAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
-
-interface INavProps {
-  user?: IUser;
-  setSettingsDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  setLocationDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  setLocationDialogType?: React.Dispatch<React.SetStateAction<"add" | "edit">>;
-}
+import INavProps from "./interfaces/nav";
 
 export const Nav: React.FC<INavProps> = ({
   user,
@@ -32,7 +25,7 @@ export const Nav: React.FC<INavProps> = ({
 }) => {
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
-  const [navHeight, setNavheight] = useState<string>("uncollapse");
+  const [navHeight, setNavHeight] = useState<string>("uncollapse");
 
   const [navFlexDirection, setNavFlexDirection] = useState<string>("row");
 
@@ -72,7 +65,7 @@ export const Nav: React.FC<INavProps> = ({
       setAddBtnOpacity("opacity-0");
 
       setTimeout(() => {
-        setNavheight("collapse");
+        setNavHeight("collapse");
 
         setHamBtnAlign("align-self-start");
 
@@ -102,7 +95,7 @@ export const Nav: React.FC<INavProps> = ({
       setAuthButtonsOpacity("opacity-0");
 
       setTimeout(() => {
-        setNavheight("uncollapse");
+        setNavHeight("uncollapse");
 
         setMenuItemDisplay("display-none");
 
@@ -188,13 +181,12 @@ export const Nav: React.FC<INavProps> = ({
               className={`${menuItemDisplay} ${menuItemOpacity}`}
               onClick={() => {
                 navigate("/login");
-                
+
                 cookies.remove("guessmygeo_token");
 
                 cookies.remove("guessmygeo_privilege");
 
                 document.removeEventListener("scroll", recordScrollAction);
-
               }}
             >
               <span className="color-primary">Logout</span>

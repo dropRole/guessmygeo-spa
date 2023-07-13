@@ -29,9 +29,9 @@ export const Register: React.FC = () => {
         <p>You're name will appear on posts and your public profile.</p>
         <img src={defaultAvatar} alt="default avatar" />
         <RegisterForm
-          setOpen={setResultDialogOpen}
-          setResult={setRegisterResult}
-          setDetails={setRegisterDetails}
+          setActionResultDialogOpen={setResultDialogOpen}
+          setActionResult={setRegisterResult}
+          setActionDetails={setRegisterDetails}
         />
       </div>
       <div>

@@ -1,6 +1,8 @@
 import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import "./Map.css";
+import IMapProps from "./interfaces/map";
+import { GoogleMap, MapMarker, MapPolyline, MapSearchBox } from "./types/map";
 
 const loadGoogleMapsAPI: () => void = async () => {
   const loader: Loader = new Loader({
@@ -14,24 +16,10 @@ const loadGoogleMapsAPI: () => void = async () => {
 
 loadGoogleMapsAPI();
 
-type GoogleMap = google.maps.Map;
-type MapMarker = google.maps.Marker;
-type MapSearchBox = google.maps.places.SearchBox;
-type MapPolyline = google.maps.Polyline;
-
-interface IMapProps {
-  currentCoords: { lat: number; lng: number };
-  setCurrentCoords: React.Dispatch<
-    React.SetStateAction<{ lat: number; lng: number }>
-  >;
-  exposeCoords: { lat: number; lng: number };
-  guessCoords?: { lat: number; lng: number };
-  disabled: boolean;
-}
 export const Map: React.FC<IMapProps> = ({
+  initialCoords,
   currentCoords,
   setCurrentCoords,
-  exposeCoords,
   guessCoords,
   disabled,
 }) => {
@@ -45,31 +33,33 @@ export const Map: React.FC<IMapProps> = ({
   const latLngRef: React.RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const configureGoogleMap: () => void = async () => {
     if (mapRef.current) {
       const map: GoogleMap = new google.maps.Map(mapRef.current, {
-        center: exposeCoords,
-        zoom:
-          guessCoords && guessCoords.lat !== 0 && guessCoords.lng !== 0 ? 5 : 8,
+        center: new google.maps.LatLng({
+          lat: parseFloat(initialCoords.lat.toString()),
+          lng: parseFloat(initialCoords.lng.toString()),
+        }),
+        zoom: guessCoords ? 5 : 8,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: false,
-        mapId: `MAP_ID_${Math.round(exposeCoords.lat)}_${Math.round(
-          exposeCoords.lng
-        )}`,
       });
-
-      const searchBox: MapSearchBox = new google.maps.places.SearchBox(
-        searchBoxRef.current as HTMLInputElement
-      );
 
       const marker: MapMarker = new google.maps.Marker({
         map,
-        position: currentCoords,
+        position: new google.maps.LatLng({
+          lat: initialCoords.lat,
+          lng: initialCoords.lng,
+        }),
         title: "Current coords",
         draggable: !disabled,
         animation: google.maps.Animation.DROP,
         crossOnDrag: false,
       });
+
+      const searchBox: MapSearchBox = new google.maps.places.SearchBox(
+        searchBoxRef.current as HTMLInputElement
+      );
 
       google.maps.event.addListener(marker, "dragend", (e: any) =>
         setCurrentCoords({
@@ -130,10 +120,13 @@ export const Map: React.FC<IMapProps> = ({
         latLngRef.current as HTMLElement
       );
       // location guessed
-      if (guessCoords && guessCoords.lat !== 0 && guessCoords.lng !== 0) {
-        const locationMarker: MapMarker = new google.maps.Marker({
+      if (guessCoords) {
+        const guessMarker: MapMarker = new google.maps.Marker({
           map,
-          position: exposeCoords,
+          position: new google.maps.LatLng({
+            lat: guessCoords.lat,
+            lng: guessCoords.lng,
+          }),
           title: "Guessed coords",
           draggable: false,
           animation: google.maps.Animation.DROP,
@@ -142,7 +135,7 @@ export const Map: React.FC<IMapProps> = ({
 
         const line: MapPolyline = new google.maps.Polyline({
           path: [
-            new google.maps.LatLng(exposeCoords.lat, exposeCoords.lng),
+            new google.maps.LatLng(initialCoords.lat, initialCoords.lng),
             new google.maps.LatLng(guessCoords.lat, guessCoords.lng),
           ],
           strokeColor: "#00000",
@@ -154,7 +147,11 @@ export const Map: React.FC<IMapProps> = ({
 
       setGoogleMap(map);
     }
-  }, [exposeCoords]);
+  };
+
+  useEffect(() => {
+    configureGoogleMap();
+  }, [initialCoords, guessCoords]);
 
   return (
     <>
@@ -171,8 +168,8 @@ export const Map: React.FC<IMapProps> = ({
       <div ref={latLngRef} id="latLngDetails">
         <span>Lat</span>
         <span>Lng</span>
-        <span>{currentCoords.lat.toFixed(2)}</span>
-        <span>{currentCoords.lng.toFixed(2)}</span>
+        <span>{parseFloat(currentCoords.lat.toString()).toFixed(2)}</span>
+        <span>{parseFloat(currentCoords.lng.toString()).toFixed(2)}</span>
       </div>
       {typeof google === "object" &&
         typeof google.maps === "object" &&

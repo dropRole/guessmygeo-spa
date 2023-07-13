@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { Nav } from "../layouts/Nav";
 import { Footer } from "../layouts/Footer";
-import { IUser } from "../interfaces/user.interface";
+import IUser from "../api/interfaces/user.interface";
 import defaultAvatar from "../assets/icons/default-avatar.png";
-import AuthService from "../api/auth.service";
 import "./Profile.css";
 import { GuessCardBox } from "../containers/GuessCardBox";
 import { LocationCardBox } from "../containers/LocationCardBox";
-import { ILocation } from "../interfaces/location.interface";
+import ILocation from "../api/interfaces/location.interface";
 import { LocationDialog } from "../containers/LocationDialog";
 import { SettingsDialog } from "../containers/SettingsDialog";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { LocationDeletionDialog } from "../components/LocationDeletionDialog";
-import { ResultDialog } from "../components/ResultDialog";
+import { DeletionDialog } from "../components/DeletionDialog";
+import { ActionResultDialog } from "../components/ActionResultDialog";
 import Cookies from "universal-cookie";
+import { getUserInfo } from "../helpers/auth-utility";
 
 export const Profile = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
@@ -49,60 +49,16 @@ export const Profile = () => {
     undefined
   );
 
-  const [resultDialogOpen, setResultDialogOpen] = useState<boolean>(false);
+  const [actionResultDialogOpen, setDeletionDialogOpen] =
+    useState<boolean>(false);
 
-  const [locationDeletionResult, setLocationDeletionResult] =
-    useState<string>("");
+  const [deletionResult, setDeletionResult] = useState<string>("");
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const authService: AuthService = new AuthService();
 
   const cookies: Cookies = new Cookies();
 
   useEffect(() => {
-    const streamAvatar: (path: string) => Promise<Blob> = async (
-      path: string
-    ) => {
-      const avatar: Blob = await authService.streamAvatar(path);
-
-      return avatar;
-    };
-
-    const getUserInfo: () => void = async () => {
-      const info: IUser | string = await authService.selectInfo();
-
-      // succeeded
-      if (typeof info !== "string") {
-        // uploaded user avatar
-        if ((info as IUser).avatar !== null)
-          return setUser({
-            ...(info as IUser),
-            avatar: await streamAvatar(info.avatar as string),
-          });
-
-        setUser({ ...(info as IUser), avatar: defaultAvatar });
-      }
-    };
-
-    const setSpectatedUserInfo: (spectatedUserInfo: IUser) => void = async (
-      spectatedUserInfo: IUser
-    ) => {
-      // avatar uploaded
-      if (spectatedUserInfo.avatar !== "null") {
-        const avatar: Blob = await authService.streamAvatar(
-          searchParams.get("avatar") as string
-        );
-
-        return setSpectatedUser({
-          ...spectatedUserInfo,
-          avatar,
-        });
-      }
-
-      setSpectatedUser({ ...spectatedUserInfo, avatar: defaultAvatar });
-    };
-
     // spectating user profile
     if (
       searchParams.get("username") &&
@@ -111,7 +67,7 @@ export const Profile = () => {
       searchParams.get("email") &&
       searchParams.get("avatar")
     )
-      setSpectatedUserInfo({
+      getUserInfo(setSpectatedUser, {
         username: searchParams.get("username") as string,
         name: searchParams.get("name") as string,
         surname: searchParams.get("surname") as string,
@@ -122,7 +78,7 @@ export const Profile = () => {
 
     // user logged in
     if (cookies.get("guessmygeo_token") && !cookies.get("guessmygeo_privilege"))
-      getUserInfo();
+      getUserInfo(setUser);
   }, [searchParams]);
 
   return !cookies.get("guessmygeo_privilege") &&
@@ -157,9 +113,13 @@ export const Profile = () => {
             : ""
         }`}</div>
       </div>
-      <p id="personalGuesses">Personal best guesses</p>
+      <p id="personalGuesses">
+        {spectatedUser ? "Best guesses" : "Personal best guesses"}
+      </p>
       <GuessCardBox guesser={spectatedUser ? spectatedUser : user} />
-      <p id="personalLocations">My locations</p>
+      <p id="personalLocations">
+        {spectatedUser ? "Locations" : "My locations"}
+      </p>
       <LocationCardBox
         user={spectatedUser ? spectatedUser : user}
         setLocationToEdit={setLocationToEdit}
@@ -182,20 +142,22 @@ export const Profile = () => {
         setOpen={setSettingsDialogOpen}
         user={user}
         setUser={setUser}
+        setActionResultDialogOpen={setDeletionDialogOpen}
+        setActionResult={setDeletionResult}
       />
-      <LocationDeletionDialog
+      <DeletionDialog
         open={locationDeletionDialogOpen}
         setOpen={setLocationDeletionDialogOpen}
-        locationToDelete={locationToDelete}
-        setResultDialogOpen={setResultDialogOpen}
-        setLocationDeletionResult={setLocationDeletionResult}
-        setDeletedLocation={setDeletedLocation}
+        toDelete={locationToDelete}
+        setActionResultDialogOpen={setDeletionDialogOpen}
+        setActionResult={setDeletionResult}
+        setDeleted={setDeletedLocation}
       />
-      <ResultDialog
-        open={resultDialogOpen}
-        setOpen={setResultDialogOpen}
-        result={locationDeletionResult}
-        setResult={setLocationDeletionResult}
+      <ActionResultDialog
+        open={actionResultDialogOpen}
+        setOpen={setDeletionDialogOpen}
+        actionResult={deletionResult}
+        setActionResult={setDeletionResult}
       />
       <Footer />
     </>

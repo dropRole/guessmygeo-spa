@@ -1,22 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./AvatarForm.css";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { IUser } from "../interfaces/user.interface";
+import IUser from "../api/interfaces/user.interface";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AuthService from "../api/auth.service";
 import { TextButton } from "../components/TextButton";
 import defaultAvatar from "../assets/icons/default-avatar.png";
-import ActionsService from "../api/actions.service";
 import { recordInputAction } from "../helpers/actions-utility";
-
-interface IAvatarFormProps {
-  user: IUser;
-  setUser: React.Dispatch<React.SetStateAction<IUser>>;
-  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setEditResult: React.Dispatch<React.SetStateAction<string>>;
-  setEditDetails: React.Dispatch<React.SetStateAction<string>>;
-}
+import { streamUserAvatar } from "../helpers/auth-utility";
+import { IAvatarFormProps } from "./interfaces/form";
 
 const schema: yup.ObjectSchema<{ avatar: any }> = yup.object().shape({
   avatar: yup
@@ -49,9 +42,9 @@ const schema: yup.ObjectSchema<{ avatar: any }> = yup.object().shape({
 export const AvatarForm: React.FC<IAvatarFormProps> = ({
   user,
   setUser,
-  setDialogOpen,
-  setEditResult,
-  setEditDetails,
+  setActionResultDialogOpen: setUploadResultDialogOpen,
+  setActionResult: setUploadResult,
+  setActionDetails: setUploadDetails,
 }) => {
   const [avatarPreview, setAvatarPreview] = useState<Blob | string>(
     user.avatar
@@ -70,7 +63,7 @@ export const AvatarForm: React.FC<IAvatarFormProps> = ({
   const onSubmit: SubmitHandler<{ avatar: any }> = async (data: {
     avatar: FileList;
   }) => {
-    setDialogOpen(true);
+    setUploadResultDialogOpen(true);
 
     const formData: FormData = new FormData();
     formData.append("avatar", data.avatar[0]);
@@ -79,28 +72,43 @@ export const AvatarForm: React.FC<IAvatarFormProps> = ({
 
     // failed
     if (typeof result === "string" && result !== "") {
-      setEditResult("Avatar change failed.");
+      setUploadResult("Avatar change failed.");
 
-      return setEditDetails(result);
+      return setUploadDetails && setUploadDetails(result);
     }
 
     const info: IUser | string = await authService.selectInfo();
 
     // succeeded
     if (typeof info !== "string") {
-      const avatar: Blob = await authService.streamAvatar(
-        info.avatar as string
-      );
+      streamUserAvatar(info.avatar as string, user, setUser);
 
-      setUser({ ...info, avatar });
+      setUploadResult("Avatar changed.");
 
-      setEditResult("Avatar changed.");
-
-      setEditDetails("You're avatar was uploaded.");
+      setUploadDetails && setUploadDetails("You're avatar was uploaded.");
     }
   };
 
-  const actionsService: ActionsService = new ActionsService();
+  const uploadAvatar: () => void = async () => {
+    setUploadResultDialogOpen(true);
+
+    const result: string = await authService.removeAvatar();
+
+    // failed
+    if (typeof result === "string" && result !== "") {
+      setUploadResult("Avatar removal failed.");
+
+      return setUploadDetails && setUploadDetails(result);
+    }
+
+    setUser({ ...user, avatar: defaultAvatar });
+
+    setAvatarPreview(defaultAvatar);
+
+    setUploadResult("Avatar removed.");
+
+    setUploadDetails && setUploadDetails("You're avatar is set to default.");
+  };
 
   return (
     <form id="avatarForm" onSubmit={handleSubmit(onSubmit)}>
@@ -125,7 +133,7 @@ export const AvatarForm: React.FC<IAvatarFormProps> = ({
             <input
               id="avatar"
               type="file"
-              onInput={async (e: any) => {
+              onInput={(e: any) => {
                 setAvatarPreview(e.target.files[0]);
 
                 recordInputAction(e);
@@ -138,26 +146,7 @@ export const AvatarForm: React.FC<IAvatarFormProps> = ({
             className="btn-text btn-outline"
             type="button"
             text="REMOVE AVATAR"
-            clickAction={async () => {
-              setDialogOpen(true);
-
-              const result: string = await authService.removeAvatar();
-
-              // failed
-              if (typeof result === "string" && result !== "") {
-                setEditResult("Avatar removal failed.");
-
-                return setEditDetails(result);
-              }
-
-              setUser({ ...user, avatar: defaultAvatar });
-
-              setAvatarPreview(defaultAvatar);
-
-              setEditResult("Avatar removed.");
-
-              setEditDetails("You're avatar is set to default.");
-            }}
+            clickAction={() => uploadAvatar()}
           />
         )}
       </div>

@@ -1,5 +1,5 @@
-import { ActionType } from "../helpers/actions-utility";
-import { IAction } from "../interfaces/action.interface";
+import ActionType from "../helpers/types/action-type";
+import IAction from "./interfaces/action.interface";
 import BaseHTTPService from "./base-http.service";
 
 export default class ActionsService extends BaseHTTPService {
@@ -21,7 +21,7 @@ export default class ActionsService extends BaseHTTPService {
     );
   }
 
-  async removeAction(id: string): Promise<boolean> {
-    return await this.delete<boolean>(`actions/${id}`);
+  async removeAction(id: string): Promise<boolean | string> {
+    return await this.delete<boolean | string>(`actions/${id}`);
   }
 }

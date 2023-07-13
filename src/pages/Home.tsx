@@ -3,8 +3,7 @@ import { Nav } from "../layouts/Nav";
 import { IntroSection } from "../components/IntroSection";
 import { LocationCardBox } from "../containers/LocationCardBox";
 import { Footer } from "../layouts/Footer";
-import { IUser } from "../interfaces/user.interface";
-import AuthService from "../api/auth.service";
+import IUser from "../api/interfaces/user.interface";
 import { GuessCardBox } from "../containers/GuessCardBox";
 import "./Home.css";
 import defaultAvatar from "../assets/icons/default-avatar.png";
@@ -12,8 +11,10 @@ import { SettingsDialog } from "../containers/SettingsDialog";
 import { LocationDialog } from "../containers/LocationDialog";
 import { recordScrollAction } from "../helpers/actions-utility";
 import Cookies from "universal-cookie";
-import { IGuesser } from "../containers/GuessingLeaderboard";
+import { IGuesser } from "../api/interfaces/guess.interface";
 import { Navigate } from "react-router-dom";
+import { getUserInfo } from "../helpers/auth-utility";
+import { ActionResultDialog } from "../components/ActionResultDialog";
 
 export const Home: React.FC = () => {
   const [user, setUser] = useState<IUser>({ avatar: defaultAvatar } as IUser);
@@ -26,7 +27,12 @@ export const Home: React.FC = () => {
     "add"
   );
 
-  const authService: AuthService = new AuthService();
+  const [actionResultDialogOpen, setActionResultDialogOpen] =
+    useState<boolean>(false);
+
+  const [actionResult, settingsEditResult] = useState<string>("");
+
+  const [actionDetails, setSettingsEditDetails] = useState<string>("");
 
   const cookies: Cookies = new Cookies();
 
@@ -36,27 +42,7 @@ export const Home: React.FC = () => {
       cookies.get("guessmygeo_token") &&
       !cookies.get("guessmygeo_privilege")
     ) {
-      const getUserInfo: () => void = async () => {
-        const info: IUser | string = await authService.selectInfo();
-
-        // succeeded
-        if (typeof info !== "string") {
-          // uploaded avatar
-          if ((info as IUser).avatar !== null) {
-            const avatar: Blob = await authService.streamAvatar(
-              (info as IUser).avatar as string
-            );
-
-            setUser({ ...(info as IUser), avatar });
-
-            return;
-          }
-
-          setUser({ ...(info as IUser), avatar: defaultAvatar });
-        }
-      };
-
-      getUserInfo();
+      getUserInfo(setUser);
 
       document.addEventListener("scroll", recordScrollAction);
     }
@@ -95,11 +81,22 @@ export const Home: React.FC = () => {
             setUser={setUser}
             open={settingsDialogOpen}
             setOpen={setSettingsDialogOpen}
+            setActionResultDialogOpen={setActionResultDialogOpen}
+            setActionResult={settingsEditResult}
+            setActionDetails={setSettingsEditDetails}
           />
           <LocationDialog
             type={locationDialogType}
             open={locationDialogOpen}
             setOpen={setLocationDialogOpen}
+          />
+          <ActionResultDialog
+            open={actionResultDialogOpen}
+            setOpen={setActionResultDialogOpen}
+            actionResult={actionResult}
+            setActionResult={settingsEditResult}
+            actionDetails={actionDetails}
+            setActionDetails={setSettingsEditDetails}
           />
         </>
       )}
